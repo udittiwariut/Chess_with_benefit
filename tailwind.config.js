@@ -13,6 +13,9 @@ export default {
 			width: {
 				tileWidth: "var(--tileSize)",
 			},
+			backgroundImage: {
+				"gradient-radial": "radial-gradient(var(--gradient-color-stops))",
+			},
 		},
 	},
 	plugins: [],

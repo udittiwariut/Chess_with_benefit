@@ -9,13 +9,13 @@ const ChessLogic = () => {
 	return (
 		<div className="absolute z-10 h-full w-full top-0">
 			{virtualChess?.map((rankArray, rank) =>
-				rankArray.map((pieces, file) =>
-					pieces ? (
+				rankArray.map((pieces, file) => {
+					return pieces ? (
 						<Pieces key={uuid()} pieces={pieces} rank={rank} file={file} />
 					) : (
 						<UnoccupiedTile key={uuid()} rank={rank} file={file} />
-					)
-				)
+					);
+				})
 			)}
 		</div>
 	);
