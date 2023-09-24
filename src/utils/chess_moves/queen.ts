@@ -1,6 +1,6 @@
 import { CanMoveIn, movesType } from "../hooks/useGetMoves";
 
-const rooks = (
+const queen = (
 	virtualChess: string[][],
 	turn: string,
 	enemy: string,
@@ -12,13 +12,17 @@ const rooks = (
 		[-1, 0],
 		[0, -1],
 		[0, 1],
+		[1, 1],
+		[-1, 1],
+		[-1, -1],
+		[1, -1],
 	];
 	const canMoveIn: CanMoveIn = {};
 
-	possibleSideToMove.forEach((ele) => {
+	possibleSideToMove.forEach((side) => {
 		for (let i = 1; i < 8; i++) {
-			const nextRank = rank + i * ele[0];
-			const nextFile = file + i * ele[1];
+			const nextRank = rank + side[0] * i;
+			const nextFile = file + side[1] * i;
 
 			if (nextRank > 7 || nextRank < 0 || nextFile > 7 || nextFile < 0) {
 				break;
@@ -40,4 +44,4 @@ const rooks = (
 	return canMoveIn;
 };
 
-export default rooks;
+export default queen;

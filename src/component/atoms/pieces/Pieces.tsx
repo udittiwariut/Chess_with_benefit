@@ -1,5 +1,6 @@
 import { useAppSelector, useAppDispatch } from "../../../store/typedHooks";
 import useGetMoves from "../../../utils/hooks/useGetMoves";
+
 import {
 	chessBoardPos,
 	possibleMoves,
@@ -38,9 +39,7 @@ const Pieces = ({ pieces, rank, file }: props) => {
 		// 	e.preventDefault();
 		// 	return;
 		// }
-
 		getMove(rank, file);
-
 		e.dataTransfer.effectAllowed = "move";
 		e.dataTransfer.setData("text/plain", `${pieces}, ${rank}, ${file}`);
 		setTimeout(() => {

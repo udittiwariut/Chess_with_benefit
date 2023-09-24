@@ -12,7 +12,7 @@ export interface CanMoveIn {
 
 const PIECES = {
 	ROOK: "rook",
-	KNIGHT_WHITE: "Knight",
+	KNIGHT: "knight",
 	BISHOP: "bishop",
 	QUEEN: "queen",
 	KING: "king",
@@ -34,21 +34,68 @@ const useGetMoves = (piece: string) => {
 	piece = piece.slice(0, piece.length - 2);
 
 	return (rank: number, file: number) => {
-		console.log(piece);
-
 		switch (piece) {
-			case PIECES.PAWN:
-				const moves = possibleMoves.rooks(
+			case PIECES.ROOK:
+				const movesRooks = possibleMoves.rooks(
 					virtualChess,
 					turn,
 					enemy,
 					rank,
 					file
 				);
-				dispatch(possibleMovesAction(moves));
+
+				dispatch(possibleMovesAction(movesRooks));
+				break;
+			case PIECES.KNIGHT:
+				const movesKnight = possibleMoves.knight(
+					virtualChess,
+					turn,
+					enemy,
+					rank,
+					file
+				);
+				dispatch(possibleMovesAction(movesKnight));
+				break;
+			case PIECES.BISHOP:
+				const movesBishop = possibleMoves.bishop(
+					virtualChess,
+					turn,
+					enemy,
+					rank,
+					file
+				);
+				dispatch(possibleMovesAction(movesBishop));
+				break;
+			case PIECES.QUEEN:
+				const moveQueen = possibleMoves.queen(
+					virtualChess,
+					turn,
+					enemy,
+					rank,
+					file
+				);
+				dispatch(possibleMovesAction(moveQueen));
 				break;
 
-			default:
+			case PIECES.KING:
+				const moveKing = possibleMoves.king(
+					virtualChess,
+					turn,
+					enemy,
+					rank,
+					file
+				);
+				dispatch(possibleMovesAction(moveKing));
+				break;
+			case PIECES.PAWN:
+				const pawnMove = possibleMoves.pawn(
+					virtualChess,
+					turn,
+					enemy,
+					rank,
+					file
+				);
+				dispatch(possibleMovesAction(pawnMove));
 				break;
 		}
 	};
