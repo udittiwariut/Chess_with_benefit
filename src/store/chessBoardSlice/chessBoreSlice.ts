@@ -36,11 +36,10 @@ const chessBoardSlice = createSlice({
 			state.currentPos[rank][file] = piece;
 			state.currentPos[parseInt(pieceRank)][parseInt(pieceFile)] = "";
 			state.history.push(state.currentPos);
-			// @turn based stopper
-			// if (state.turn === "w") state.turn = "b";
-			// else {
-			// 	state.turn = "w";
-			// }
+			if (state.turn === "w") state.turn = "b";
+			else {
+				state.turn = "w";
+			}
 
 			state.moves = {};
 		},

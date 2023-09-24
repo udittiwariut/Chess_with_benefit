@@ -19,15 +19,13 @@ const UnoccupiedTile = ({ rank, file }: props) => {
 	const dispatch = useAppDispatch();
 
 	const ondrop = (e: React.DragEvent<HTMLDivElement>) => {
-		//  @is !isMovementPossible Pause
-		// if (!isMovementPossible()) return;
+		if (!isMovementPossible()) return;
 		const piceInfo = e.dataTransfer.getData("text");
 		dispatch(chessBoardPos({ piceInfo, rank, file }));
 	};
 
 	const ondragOver = (e: React.DragEvent<HTMLDivElement>) => {
-		//@is !isMovementPossible Pause
-		// if (!isMovementPossible()) return;
+		if (!isMovementPossible()) return;
 		e.preventDefault();
 	};
 
