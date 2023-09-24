@@ -1,6 +1,6 @@
 import { CanMoveIn, movesType } from "../hooks/useGetMoves";
 
-const rooks = (
+const rook = (
 	virtualChess: string[][],
 	turn: string,
 	enemy: string,
@@ -40,4 +40,4 @@ const rooks = (
 	return canMoveIn;
 };
 
-export default rooks;
+export default rook;
