@@ -42,11 +42,10 @@ const Pieces = ({ pieces, rank, file }: props) => {
 		rank: number,
 		file: number
 	) => {
-		// @turn based stopper
-		// if (!isTurn) {
-		// 	e.preventDefault();
-		// 	return;
-		// }
+		if (!isTurn) {
+			e.preventDefault();
+			return;
+		}
 		getMove(rank, file);
 		e.dataTransfer.effectAllowed = "move";
 		e.dataTransfer.setData("text/plain", `${pieces}, ${rank}, ${file}`);
@@ -88,8 +87,10 @@ const Pieces = ({ pieces, rank, file }: props) => {
 
 	return (
 		<>
-			<div ///////////////////////////////////////////////////////////////@ add isTurn here
-				className={`h-tileHeight z-20 absolute w-tileWidth bg-contain ${"cursor-pointer"}`}
+			<div
+				className={`h-tileHeight z-20 absolute w-tileWidth bg-contain ${
+					isTurn && "cursor-pointer"
+				}`}
 				style={{
 					top: `${tileSize * rank}rem`,
 					left: `${tileSize * file}rem`,
@@ -98,7 +99,7 @@ const Pieces = ({ pieces, rank, file }: props) => {
 							? `url(src/component/molecule/chessLogic/pieces-basic-svg/${pieces}.svg)`
 							: undefined,
 				}}
-				draggable={true} // @replace true with is turn
+				draggable={isTurn}
 				onDragStart={(e) => ondragStart(e, rank, file)}
 				onDragEnd={(e) => ondragEnd(e)}
 				onDrop={ondrop}
