@@ -3,7 +3,7 @@ import IvirtualChess from "../../utils/functions/getChessPieces";
 import { CanMoveIn } from "../../utils/hooks/useGetMoves";
 
 interface PieceInfo {
-	piceInfo: string;
+	piceInfo: string[];
 	rank: number;
 	file: number;
 }
@@ -30,16 +30,15 @@ const chessBoardSlice = createSlice({
 	name: "chess",
 	initialState,
 	reducers: {
-		chessBoardPos: (state, action: PayloadAction<PieceInfo>) => {
-			const [piece, pieceRank, pieceFile] = action.payload.piceInfo.split(",");
-			const { rank, file } = action.payload;
-			state.currentPos[rank][file] = piece;
-			state.currentPos[parseInt(pieceRank)][parseInt(pieceFile)] = "";
-			state.history.push(state.currentPos);
-			if (state.turn === "w") state.turn = "b";
-			else {
-				state.turn = "w";
-			}
+		chessBoardPos: (state, action: PayloadAction<string[][]>) => {
+			state.currentPos = action.payload;
+			state.history.push(action.payload);
+
+			// @turn based stopper
+			// if (state.turn === "w") state.turn = "b";
+			// else {
+			// 	state.turn = "w";
+			// }
 
 			state.moves = {};
 		},

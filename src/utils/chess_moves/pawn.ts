@@ -8,6 +8,7 @@ const pawn = (
 	file: number
 ) => {
 	let canMoveIn: CanMoveIn = {};
+
 	const calculateMoves = (val: number) => {
 		let nextPosRank = rank;
 		let nextPosFile = file;
@@ -40,6 +41,8 @@ const pawn = (
 				canMoveIn[`${nextPosRank + 2 * val}${nextPosFile}`] = movesType.PASSING;
 			}
 		}
+
+		/// promotion
 	};
 
 	let num;
@@ -49,10 +52,13 @@ const pawn = (
 	if (turn === "b") {
 		num = 1;
 	}
-
 	calculateMoves(num!);
 
 	return canMoveIn;
 };
+
+// const pawnPromotionOnDrop = (pieces: string, rank: number) => {
+// 	if()
+// };
 
 export default pawn;
