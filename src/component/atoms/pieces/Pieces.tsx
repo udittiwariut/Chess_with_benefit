@@ -1,11 +1,15 @@
 import { useAppSelector, useAppDispatch } from "../../../store/typedHooks";
-import useGetMoves from "../../../utils/hooks/useGetMoves";
-
+import { produce } from "immer";
+import useGetMoves, { movesType } from "../../../utils/hooks/useGetMoves";
 import {
 	chessBoardPos,
 	possibleMoves,
 	retirePiece,
 } from "../../../store/chessBoardSlice/chessBoreSlice";
+import AttackCircle from "../attackCircle/AttackCircle";
+import PassingCircle from "../passingCircle/PassingCircle";
+import PromotionTab from "../promotionTab/PromotionTab";
+import getPieceInfo from "../../../utils/functions/getPieceInfo";
 interface props {
 	pieces: string;
 	rank: number;
@@ -18,14 +22,18 @@ const Pieces = ({ pieces, rank, file }: props) => {
 	const tileSize = parseInt(
 		getComputedStyle(document.body).getPropertyValue("--tileSize").charAt(0)
 	);
-
+	const virtualChess = useAppSelector((state) => state.chess.currentPos);
 	const moves = useAppSelector((state) => state.chess.moves);
 	const turn = useAppSelector((state) => state.chess.turn);
 
 	const isMovementPossible = () => {
-		if (!moves[`${rank}${file}`]) return "";
+		if (moves[`${rank}${file}`] === movesType.ATTACKING)
+			return movesType.ATTACKING;
 
-		return true;
+		if (moves[`${rank}${file}`] === movesType.PASSING) return movesType.PASSING;
+
+		if (moves[`${rank}${file}`] === movesType.PROMOTION)
+			return movesType.PROMOTION;
 	};
 	const isTurn = turn === pieces.charAt(pieces.length - 1);
 
@@ -54,14 +62,27 @@ const Pieces = ({ pieces, rank, file }: props) => {
 	};
 
 	const ondrop = (e: React.DragEvent<HTMLDivElement>) => {
-		if (!isMovementPossible()) return;
-		const piceInfo = e.dataTransfer.getData("text");
-		dispatch(retirePiece(pieces));
-		dispatch(chessBoardPos({ piceInfo, rank, file }));
+		//  @is !isMovementPossible Pause
+		// if (!isMovementPossible()) return;
+		e.dataTransfer.setData(
+			"text/plain",
+			`${movesType.PROMOTION}, ${rank}, ${file}`
+		);
+		const piceInfo = getPieceInfo(e, rank);
+
+		const [piece, pieceRank, pieceFile] = piceInfo;
+
+		const newPos = produce(virtualChess, (draft) => {
+			draft[rank][file] = piece;
+			draft[parseInt(pieceRank)][parseInt(pieceFile)] = "";
+		});
+
+		dispatch(chessBoardPos(newPos));
 	};
 
 	const ondragOver = (e: React.DragEvent<HTMLDivElement>) => {
-		if (!isMovementPossible()) return;
+		//  @is !isMovementPossible Pause
+		// if (!isMovementPossible()) return;
 		e.preventDefault();
 	};
 
@@ -72,7 +93,10 @@ const Pieces = ({ pieces, rank, file }: props) => {
 				style={{
 					top: `${tileSize * rank}rem`,
 					left: `${tileSize * file}rem`,
-					backgroundImage: `url(src/component/molecule/chessLogic/pieces-basic-svg/${pieces}.svg)`,
+					backgroundImage:
+						pieces && pieces != movesType.PROMOTION
+							? `url(src/component/molecule/chessLogic/pieces-basic-svg/${pieces}.svg)`
+							: undefined,
 				}}
 				draggable={true} // @replace true with is turn
 				onDragStart={(e) => ondragStart(e, rank, file)}
@@ -80,17 +104,14 @@ const Pieces = ({ pieces, rank, file }: props) => {
 				onDrop={ondrop}
 				onDragOver={ondragOver}
 			></div>
-			{isMovementPossible() && (
-				<div
-					className={`h-tileHeight z-10 absolute w-tileWidth rounded-full border-[6px] border-rose-500 `}
-					style={{
-						top: `${tileSize * rank}rem`,
-						left: `${tileSize * file}rem`,
-					}}
-					draggable={true} // @replace true with is turn
-					onDragStart={(e) => ondragStart(e, rank, file)}
-					onDragEnd={(e) => ondragEnd(e)}
-				></div>
+			{isMovementPossible() === movesType.ATTACKING && (
+				<AttackCircle rank={rank} file={file} />
+			)}
+			{isMovementPossible() === movesType.PASSING && (
+				<PassingCircle rank={rank} file={file} />
+			)}
+			{pieces === movesType.PROMOTION && (
+				<PromotionTab rank={rank} file={file} />
 			)}
 		</>
 	);

@@ -5,6 +5,7 @@ import * as possibleMoves from "./../chess_moves/allpieces";
 export const movesType = {
 	ATTACKING: "attacking",
 	PASSING: "passing",
+	PROMOTION: "promotion",
 };
 export interface CanMoveIn {
 	[key: string]: string;
