@@ -5,7 +5,8 @@ const king = (
 	turn: string,
 	enemy: string,
 	rank: number,
-	file: number
+	file: number,
+	dispatch: any
 ) => {
 	const possibleSideToMove = [
 		[1, 0],

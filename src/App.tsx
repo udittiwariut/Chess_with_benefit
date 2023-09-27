@@ -1,9 +1,13 @@
 import Denotion from "./component/atoms/ranks/denotion";
 import ChessLogic from "./component/molecule/chessLogic/ChessLogic";
 import ChessBoard from "./component/molecule/chessBord/ChesssBoard";
+import { useAppSelector } from "./store/typedHooks";
+
 import "./App.css";
 
 function App() {
+	const turn = useAppSelector((state) => state.chess.turn);
+
 	const files = Array(8)
 		.fill(0)
 		.map((_, i) => (8 - i).toString());
@@ -14,7 +18,7 @@ function App() {
 
 	return (
 		<>
-			<div className=" flex">
+			<div className="flex">
 				<Denotion variant="vertical" denotionArray={files} />
 				<div>
 					<div id="chessBoard" className="relative">
@@ -23,6 +27,7 @@ function App() {
 					</div>
 					<Denotion variant="horizontal" denotionArray={ranks} />
 				</div>
+				<h1 className="text-5xl">Turn: {turn}</h1>
 			</div>
 		</>
 	);

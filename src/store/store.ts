@@ -5,7 +5,7 @@ import logger from "redux-logger";
 
 const store = configureStore({
 	reducer: { chess: chessBoreReducer },
-	middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
+	// middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
