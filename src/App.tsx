@@ -1,6 +1,8 @@
+import Confetti from "react-confetti";
 import Denotion from "./component/atoms/ranks/denotion";
 import ChessLogic from "./component/molecule/chessLogic/ChessLogic";
 import ChessBoard from "./component/molecule/chessBord/ChesssBoard";
+
 import { useAppSelector } from "./store/typedHooks";
 
 import "./App.css";
@@ -18,6 +20,7 @@ function App() {
 
 	return (
 		<>
+			{/* <Confetti width={window.innerWidth} height={window.innerHeight} /> */}
 			<div className="flex">
 				<Denotion variant="vertical" denotionArray={files} />
 				<div>
