@@ -1,11 +1,16 @@
+import { MutableRefObject, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "../../../store/typedHooks";
 import { produce } from "immer";
 import useGetMoves, {
+	CanMoveIn,
 	movesType,
 	piecesType,
 } from "../../../utils/hooks/useGetMoves";
 import {
+	EnemyMove,
 	chessBoardPos,
+	enemyMoves,
+	enemyMoves as enemyMovesAction,
 	kingPos as kingPosAction,
 	possibleMoves as possibleMovesAction,
 } from "../../../store/chessBoardSlice/chessBoreSlice";
@@ -16,6 +21,7 @@ import getPieceInfo from "../../../utils/functions/getPieceInfo";
 import isTargetGettingKilled from "../../../utils/functions/isTargetGettingKilled";
 import * as possibleMoves from "./../../../utils/chess_moves/allpieces";
 import isCheckAfterMove from "../../../utils/functions/isCheckAfterMove";
+import DispatchEnemyMove from "../dispatchEnemyMove/DispatchEnemyMove";
 
 interface props {
 	piece: string;
@@ -23,9 +29,10 @@ interface props {
 	file: number;
 	check: boolean;
 	kingPos: string;
+	storeMoves: MutableRefObject<EnemyMove>;
 }
 
-const Pieces = ({ piece, rank, file, check, kingPos }: props) => {
+const Pieces = ({ piece, rank, file, check, kingPos, storeMoves }: props) => {
 	const dispatch = useAppDispatch();
 	const getMoves = useGetMoves();
 
@@ -35,9 +42,11 @@ const Pieces = ({ piece, rank, file, check, kingPos }: props) => {
 
 	const isCheck = useAppSelector((state) => state.chess.isCheck.isCheck);
 
-	const enemyMoves = useAppSelector((state) => state.chess.enemyMoves);
+	// const enemyMoves = useAppSelector((state) => state.chess.enemyMoves);
 
 	const turn = useAppSelector((state) => state.chess.turn);
+	const enemy = turn === "w" ? "b" : "w";
+
 	const virtualChess = useAppSelector((state) => state.chess.currentPos);
 
 	const moves = useAppSelector((state) => state.chess.moves);
@@ -49,6 +58,49 @@ const Pieces = ({ piece, rank, file, check, kingPos }: props) => {
 		if (moves[`${rank}${file}`] === movesType.PASSING) return movesType.PASSING;
 	};
 	const isTurn = turn === piece.charAt(piece.length - 1);
+
+	useEffect(() => {
+		const getMove = () => {
+			if (!(piece.slice(-1) === enemy)) return;
+			const pieceWithoutPlayer = piece.slice(0, piece.length - 2);
+			const kingPosition = kingPos.split("");
+			const virtualChessWithoutKing = produce(virtualChess, (draft) => {
+				// @ts-ignore
+				draft[kingPosition[0]][kingPosition[1]] = "";
+			});
+
+			let move;
+
+			if (pieceWithoutPlayer === piecesType.PAWN) {
+				move = possibleMoves[pieceWithoutPlayer as keyof typeof possibleMoves](
+					virtualChess,
+					enemy,
+					turn,
+					rank,
+					file
+				);
+			}
+
+			if (!(pieceWithoutPlayer === piecesType.PAWN)) {
+				move = possibleMoves[pieceWithoutPlayer as keyof typeof possibleMoves](
+					virtualChessWithoutKing,
+					enemy,
+					turn,
+					rank,
+					file
+				);
+			}
+			const previousMove = { ...storeMoves.current };
+			previousMove[`${rank}${file}`] = [...Object.keys(move!)];
+			storeMoves.current = previousMove;
+		};
+
+		getMove();
+
+		if (rank * file === 49) {
+			console.log(storeMoves.current);
+		}
+	}, [turn]);
 
 	const ondragStart = (
 		e: React.DragEvent<HTMLDivElement>,
@@ -63,7 +115,7 @@ const Pieces = ({ piece, rank, file, check, kingPos }: props) => {
 		if (
 			!isCheckAfterMove(
 				isCheck,
-				enemyMoves,
+				storeMoves.current,
 				turn,
 				virtualChess,
 				possibleMoves,
@@ -72,7 +124,7 @@ const Pieces = ({ piece, rank, file, check, kingPos }: props) => {
 				kingPos
 			)
 		) {
-			getMoves.turnPossibleMoves(piece, rank, file);
+			getMoves.turnPossibleMoves(piece, rank, file, storeMoves.current);
 		}
 		e.dataTransfer.effectAllowed = "move";
 		e.dataTransfer.setData("text/plain", `${piece}, ${rank}, ${file}`);
@@ -85,9 +137,7 @@ const Pieces = ({ piece, rank, file, check, kingPos }: props) => {
 		// @ts-ignore
 
 		e.target.style.display = "block";
-		if (Object.keys(moves).length) {
-			dispatch(possibleMovesAction({}));
-		}
+		storeMoves.current = {};
 	};
 
 	const ondrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -119,6 +169,8 @@ const Pieces = ({ piece, rank, file, check, kingPos }: props) => {
 				kingPosAction({ newKingPos: `${rank}${file}`, pieceType: piece })
 			);
 		}
+
+		storeMoves.current = {};
 	};
 
 	const ondragOver = (e: React.DragEvent<HTMLDivElement>) => {

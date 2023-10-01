@@ -5,6 +5,7 @@ import {
 	possibleMoves as possibleMovesAction,
 	enemyMoves as enemyMovesAction,
 	isCheckMate as isCheckMateAction,
+	EnemyMove,
 } from "../../store/chessBoardSlice/chessBoreSlice";
 import legalMovesAfterCheckFn from "../functions/legalMovesAfterCheck";
 import { produce } from "immer";
@@ -34,9 +35,13 @@ const useGetMoves = () => {
 	);
 	const enemy = turn === "w" ? "b" : "w";
 	const { isCheck, from } = useAppSelector((state) => state.chess.isCheck);
-	const enemyMoves = useAppSelector((state) => state.chess.enemyMoves);
 
-	const turnPossibleMoves = (piece: string, rank: number, file: number) => {
+	const turnPossibleMoves = (
+		piece: string,
+		rank: number,
+		file: number,
+		enemyMoves: EnemyMove
+	) => {
 		piece = piece.slice(0, piece.length - 2);
 
 		const moves = possibleMoves[piece as keyof typeof possibleMoves](
