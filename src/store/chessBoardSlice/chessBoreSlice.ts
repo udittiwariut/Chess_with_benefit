@@ -2,6 +2,10 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import IvirtualChess from "../../utils/functions/getChessPieces";
 import { CanMoveIn } from "../../utils/hooks/useGetMoves";
 
+export interface EnemyMove {
+	[key: string | number]: string[];
+}
+
 interface ChessBoardPos {
 	newPos: string[][];
 	isPromotion: boolean;
@@ -11,6 +15,12 @@ interface KingPos {
 	newKingPos: string;
 	pieceType: string;
 }
+
+export interface IsCheck {
+	isCheck: boolean;
+	from: string[];
+}
+
 interface InitialState {
 	currentPos: string[][];
 	history: string[][][];
@@ -24,8 +34,9 @@ interface InitialState {
 		w: string;
 		b: string;
 	};
-	enemyMoves: {};
-	isCheck: boolean;
+	enemyMoves: EnemyMove;
+	isCheck: IsCheck;
+	isCheckMate: boolean;
 }
 
 const initialState: InitialState = {
@@ -36,7 +47,8 @@ const initialState: InitialState = {
 	retired: { w: [], b: [] },
 	kingPosition: { b: "04", w: "74" },
 	enemyMoves: {},
-	isCheck: false,
+	isCheck: { isCheck: false, from: [] },
+	isCheckMate: false,
 };
 
 const chessBoardSlice = createSlice({
@@ -66,11 +78,17 @@ const chessBoardSlice = createSlice({
 			state.kingPosition[player as keyof typeof state.kingPosition] =
 				action.payload.newKingPos;
 		},
-		enemyMoves: (state, action: PayloadAction<CanMoveIn>) => {
+		enemyMoves: (state, action: PayloadAction<EnemyMove>) => {
 			state.enemyMoves = action.payload;
 		},
-		isCheck: (state, action: PayloadAction<boolean>) => {
-			state.isCheck = action.payload;
+		isCheck: (state, action: PayloadAction<IsCheck>) => {
+			state.isCheck = {
+				isCheck: action.payload.isCheck,
+				from: action.payload.from,
+			};
+		},
+		isCheckMate: (state, action: PayloadAction<boolean>) => {
+			state.isCheckMate = action.payload;
 		},
 	},
 });
@@ -82,5 +100,6 @@ export const {
 	kingPos,
 	enemyMoves,
 	isCheck,
+	isCheckMate,
 } = chessBoardSlice.actions;
 export default chessBoardSlice.reducer;

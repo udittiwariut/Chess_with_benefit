@@ -7,20 +7,25 @@ import useGetMoves, {
 import {
 	chessBoardPos,
 	kingPos as kingPosAction,
-	possibleMoves,
+	possibleMoves as possibleMovesAction,
 } from "../../../store/chessBoardSlice/chessBoreSlice";
 import AttackCircle from "../attackCircle/AttackCircle";
 import PassingCircle from "../passingCircle/PassingCircle";
 import PromotionTab from "../promotionTab/PromotionTab";
 import getPieceInfo from "../../../utils/functions/getPieceInfo";
+import isTargetGettingKilled from "../../../utils/functions/isTargetGettingKilled";
+import * as possibleMoves from "./../../../utils/chess_moves/allpieces";
+import isCheckAfterMove from "../../../utils/functions/isCheckAfterMove";
+
 interface props {
 	piece: string;
 	rank: number;
 	file: number;
 	check: boolean;
+	kingPos: string;
 }
 
-const Pieces = ({ piece, rank, file, check }: props) => {
+const Pieces = ({ piece, rank, file, check, kingPos }: props) => {
 	const dispatch = useAppDispatch();
 	const getMoves = useGetMoves();
 
@@ -28,9 +33,12 @@ const Pieces = ({ piece, rank, file, check }: props) => {
 		getComputedStyle(document.body).getPropertyValue("--tileSize").charAt(0)
 	);
 
+	const isCheck = useAppSelector((state) => state.chess.isCheck.isCheck);
+
+	const enemyMoves = useAppSelector((state) => state.chess.enemyMoves);
+
 	const turn = useAppSelector((state) => state.chess.turn);
 	const virtualChess = useAppSelector((state) => state.chess.currentPos);
-	const kingPos = useAppSelector((state) => state.chess.kingPosition);
 
 	const moves = useAppSelector((state) => state.chess.moves);
 
@@ -52,8 +60,20 @@ const Pieces = ({ piece, rank, file, check }: props) => {
 			return;
 		}
 
-		getMoves.turnPossibleMoves(piece, rank, file);
-
+		if (
+			!isCheckAfterMove(
+				isCheck,
+				enemyMoves,
+				turn,
+				virtualChess,
+				possibleMoves,
+				rank,
+				file,
+				kingPos
+			)
+		) {
+			getMoves.turnPossibleMoves(piece, rank, file);
+		}
 		e.dataTransfer.effectAllowed = "move";
 		e.dataTransfer.setData("text/plain", `${piece}, ${rank}, ${file}`);
 		setTimeout(() => {
@@ -66,12 +86,11 @@ const Pieces = ({ piece, rank, file, check }: props) => {
 
 		e.target.style.display = "block";
 		if (Object.keys(moves).length) {
-			dispatch(possibleMoves({}));
+			dispatch(possibleMovesAction({}));
 		}
 	};
 
 	const ondrop = (e: React.DragEvent<HTMLDivElement>) => {
-		//  @is !isMovementPossible Pause
 		// if (!isMovementPossible()) return;
 		e.dataTransfer.setData(
 			"text/plain",

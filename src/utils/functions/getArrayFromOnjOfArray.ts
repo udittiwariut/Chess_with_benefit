@@ -1,11 +1,16 @@
-import { CanMoveIn } from "../hooks/useGetMoves";
-
-const getArrayFromObjOfArray = (obj: CanMoveIn) => {
+import { EnemyMove } from "../../store/chessBoardSlice/chessBoreSlice";
+const getArrayFromObjOfArray = (obj: EnemyMove) => {
 	const array: string[] = [];
-	Object.values(obj).forEach((move) => {
+	const values = Object.values(obj);
+	const keys = Object.keys(obj);
+
+	values.forEach((move, i) => {
 		// @ts-ignore comment
-		array.push(...move);
+		move.forEach((val) => {
+			if (val != keys[i]) array.push(val);
+		});
 	});
+
 	return array;
 };
 

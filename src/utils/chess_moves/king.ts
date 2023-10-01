@@ -1,6 +1,7 @@
 import { produce } from "immer";
 import { CanMoveIn, movesType, piecesType } from "../hooks/useGetMoves";
 import getArrayFromObjOfArray from "../functions/getArrayFromOnjOfArray";
+import { EnemyMove } from "../../store/chessBoardSlice/chessBoreSlice";
 import * as possibleMoves from "./allpieces";
 
 const king = (
@@ -9,8 +10,7 @@ const king = (
 	enemy: string,
 	rank: number,
 	file: number,
-	isCheck: boolean = false,
-	enemyMoves: CanMoveIn = {},
+	enemyMoves: EnemyMove = {},
 	inside: boolean = false
 ) => {
 	const possibleSideToMove = [
@@ -57,7 +57,7 @@ const king = (
 
 						const move = possibleMoves[
 							pieceWithoutPlayer as keyof typeof possibleMoves
-						](nextPos, enemy, turn, indexR, indexF, false, {}, true);
+						](nextPos, enemy, turn, indexR, indexF, {}, true);
 
 						moves[`${indexR}${indexF}` as keyof typeof moves] = [
 							...Object.keys(move),

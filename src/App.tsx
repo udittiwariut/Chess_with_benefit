@@ -2,13 +2,15 @@ import Confetti from "react-confetti";
 import Denotion from "./component/atoms/ranks/denotion";
 import ChessLogic from "./component/molecule/chessLogic/ChessLogic";
 import ChessBoard from "./component/molecule/chessBord/ChesssBoard";
-
 import { useAppSelector } from "./store/typedHooks";
 
 import "./App.css";
 
 function App() {
 	const turn = useAppSelector((state) => state.chess.turn);
+	const isCheckMate = useAppSelector((state) => state.chess.isCheckMate);
+
+	console.log(isCheckMate);
 
 	const files = Array(8)
 		.fill(0)

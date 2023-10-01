@@ -67,6 +67,8 @@ const knight = (
 		sideMoveHorizontal(-1, leftMove);
 	}
 
+	canMoveIn[`${rank}${file}`] = movesType.SELF;
+
 	return canMoveIn;
 };
 

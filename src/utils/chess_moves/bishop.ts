@@ -38,6 +38,7 @@ const bishop = (
 			}
 
 			canMoveIn[`${nextPosRank}${nextPosFile}`] = movesType.PASSING;
+			canMoveIn[`${rank}${file}`] = movesType.SELF;
 		}
 	});
 	return canMoveIn;

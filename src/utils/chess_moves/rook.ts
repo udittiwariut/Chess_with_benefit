@@ -34,6 +34,7 @@ const rook = (
 			}
 
 			canMoveIn[`${nextRank}${nextFile}`] = movesType.PASSING;
+			canMoveIn[`${rank}${file}`] = movesType.SELF;
 		}
 	});
 

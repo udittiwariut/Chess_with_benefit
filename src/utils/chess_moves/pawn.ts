@@ -53,6 +53,7 @@ const pawn = (
 		num = 1;
 	}
 	calculateMoves(num!);
+	canMoveIn[`${rank}${file}`] = movesType.SELF;
 
 	return canMoveIn;
 };
