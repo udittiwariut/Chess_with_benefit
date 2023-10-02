@@ -8,6 +8,7 @@ const isTargetGettingKilled = (
 		isCheck: false,
 		from: [],
 	};
+
 	Object.keys(enemyMoves).forEach((piecePos) => {
 		// @ts-ignore comment
 		enemyMoves[piecePos].forEach((val) => {

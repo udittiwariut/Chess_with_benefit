@@ -7,29 +7,50 @@ const legalMovesAfterCheck = (
 	enemyMoves: EnemyMove,
 	moves: CanMoveIn
 ) => {
-	const enemyPos = from[0];
+	const enemyPos = parseInt(from[0]);
+	const kingPosNum = parseInt(kingPos);
+	const newMove: CanMoveIn = {};
 
-	const start = parseInt(enemyPos) < parseInt(kingPos) ? enemyPos : kingPos;
-	const end = parseInt(enemyPos) > parseInt(kingPos) ? enemyPos : kingPos;
+	const lineOfAttack: string[] = [enemyPos.toString()];
 
-	const attackLineStart = enemyMoves[enemyPos].indexOf(start);
-	const attackLineEnd = enemyMoves[enemyPos].indexOf(end);
+	const start = enemyPos < kingPosNum ? enemyPos : kingPosNum;
+	const end = enemyPos > kingPosNum ? enemyPos : kingPosNum;
 
-	const lineOfAttack = enemyMoves[enemyPos].slice(
-		attackLineStart,
-		attackLineEnd
-	);
+	const startArray = start
+		.toString()
+		.split("")
+		.map((num) => parseInt(num));
 
-	const legalMovesAfterCheck: CanMoveIn = {};
+	const endArray = end
+		.toString()
+		.split("")
+		.map((num) => parseInt(num));
 
-	Object.keys(moves)
-		.filter((key) => lineOfAttack.includes(key))
-		.forEach(
-			(remainingMove) =>
-				(legalMovesAfterCheck[remainingMove] = moves[remainingMove])
-		);
+	let startRank = startArray[0];
+	let startFile = startArray[1];
 
-	return legalMovesAfterCheck;
+	let endRank = endArray[0];
+	let endFile = endArray[1];
+
+	while (startRank != endRank || startFile != endFile) {
+		if (startRank != endRank && startRank != 7) {
+			startRank++;
+		}
+		if (startFile > endFile) {
+			startFile--;
+		}
+		if (startFile < endFile) {
+			startFile++;
+		}
+		lineOfAttack.push(`${startRank}${startFile}`);
+	}
+
+	lineOfAttack.forEach((move) => {
+		if (!moves[move]) return;
+		newMove[move] = moves[move];
+	});
+
+	return newMove;
 };
 
 export default legalMovesAfterCheck;

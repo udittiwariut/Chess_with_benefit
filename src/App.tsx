@@ -7,7 +7,6 @@ import { useAppSelector } from "./store/typedHooks";
 import "./App.css";
 
 function App() {
-	const turn = useAppSelector((state) => state.chess.turn);
 	const isCheckMate = useAppSelector((state) => state.chess.isCheckMate);
 
 	console.log(isCheckMate);
@@ -32,7 +31,7 @@ function App() {
 					</div>
 					<Denotion variant="horizontal" denotionArray={ranks} />
 				</div>
-				<h1 className="text-5xl">Turn: {turn}</h1>
+				{/* <h1 className="text-5xl">Turn: {turn}</h1> */}
 			</div>
 		</>
 	);

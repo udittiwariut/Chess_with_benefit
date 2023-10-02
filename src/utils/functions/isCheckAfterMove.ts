@@ -36,9 +36,7 @@ const isCheckAfterMove = (
 			rank,
 			file
 		);
-		if (moves[kingPos]) {
-			return true;
-		}
+		if (moves[kingPos]) return true;
 
 		return false;
 	}

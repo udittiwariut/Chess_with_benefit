@@ -1,22 +1,22 @@
-import { MutableRefObject } from "react";
-import {
-	EnemyMove,
-	enemyMoves,
-} from "../../../store/chessBoardSlice/chessBoreSlice";
-import { useAppDispatch } from "../../../store/typedHooks";
-let count = 0;
+// import { MutableRefObject } from "react";
+// import {
+// 	EnemyMove,
+// 	enemyMoves,
+// } from "../../../store/chessBoardSlice/chessBoreSlice";
+// import { useAppDispatch } from "../../../store/typedHooks";
+// let count = 0;
 
-const DispatchEnemyMove = ({
-	storeMoves,
-}: {
-	storeMoves: MutableRefObject<EnemyMove>;
-}) => {
-	count++;
+// const DispatchEnemyMove = ({
+// 	storeMoves,
+// }: {
+// 	storeMoves: MutableRefObject<EnemyMove>;
+// }) => {
+// 	count++;
 
-	const dispatch = useAppDispatch();
-	dispatch(enemyMoves(storeMoves.current));
+// 	const dispatch = useAppDispatch();
+// 	dispatch(enemyMoves(storeMoves.current));
 
-	return null;
-};
+// 	return null;
+// };
 
-export default DispatchEnemyMove;
+// export default DispatchEnemyMove;
