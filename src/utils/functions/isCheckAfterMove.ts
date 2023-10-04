@@ -1,5 +1,5 @@
 import { produce } from "immer";
-import { EnemyMove, IsCheck } from "../../store/chessBoardSlice/chessBoreSlice";
+import { EnemyMove } from "../../store/chessBoardSlice/chessBoreSlice";
 import isTargetGettingKilled from "./isTargetGettingKilled";
 
 const isCheckAfterMove = (

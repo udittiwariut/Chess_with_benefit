@@ -4,7 +4,6 @@ import { CanMoveIn } from "../hooks/useGetMoves";
 const legalMovesAfterCheck = (
 	from: string[],
 	kingPos: string,
-	enemyMoves: EnemyMove,
 	moves: CanMoveIn
 ) => {
 	const enemyPos = parseInt(from[0]);

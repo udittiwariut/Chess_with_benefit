@@ -28,7 +28,11 @@ const useGetMoves = (
 	from: string[]
 ) => {
 	const dispatch = useAppDispatch();
-	const isCheckMate = useAppSelector((state) => state.chess.isCheckMate);
+
+	const isCheckMate = useAppSelector(
+		(state) => state.chess.checkMate.isCheckMate
+	);
+
 	const virtualChess = useAppSelector((state) => state.chess.currentPos);
 	const enemy = turn === "w" ? "b" : "w";
 	const turnPossibleMoves = (
@@ -49,13 +53,7 @@ const useGetMoves = (
 		);
 
 		if (isCheck && piece != piecesType.KING) {
-			const legalMovesAfterCheck = legalMovesAfterCheckFn(
-				from,
-				kingPos,
-				enemyMoves,
-				moves
-			);
-
+			const legalMovesAfterCheck = legalMovesAfterCheckFn(from, kingPos, moves);
 			return legalMovesAfterCheck;
 		}
 
@@ -63,7 +61,7 @@ const useGetMoves = (
 	};
 
 	const isCheckMateChecker = (enemyMoves: EnemyMove) => {
-		if (!isCheck) return;
+		if (!isCheck && !isCheckMate) return;
 
 		const kingPosArray = kingPos
 			.toString()
@@ -84,22 +82,23 @@ const useGetMoves = (
 		if (isKingStuck) return;
 
 		if (from.length > 1) {
-			dispatch(isCheckMateAction(true));
+			dispatch(isCheckMateAction({ isCheckMate: true, winner: enemy }));
 			return;
 		}
 
 		const playerMoves: string[] = [];
 
-		// virtualChess?.map((rankArray, rank) =>
-		// 	rankArray.map((piece, file) => {
-		// 		if (piece?.slice(-1) === turn) {
-		// 			const move = turnPossibleMoves(piece, rank, file, enemyMoves);
-		// 			playerMoves.push(...Object.keys(move));
-		// 		}
-		// 	})
-		// );
+		virtualChess?.map((rankArray, rank) =>
+			rankArray.map((piece, file) => {
+				if (piece?.slice(-1) === turn) {
+					const move = turnPossibleMoves(piece, rank, file, enemyMoves);
+					playerMoves.push(...Object.keys(move!));
+				}
+			})
+		);
 
-		if (!playerMoves.length) dispatch(isCheckMateAction(true));
+		if (!playerMoves.length)
+			dispatch(isCheckMateAction({ isCheckMate: true, winner: enemy }));
 	};
 
 	return { turnPossibleMoves, isCheckMateChecker };

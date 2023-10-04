@@ -6,6 +6,10 @@ export interface EnemyMove {
 	[key: string | number]: string[];
 }
 
+interface CheckMate {
+	isCheckMate: boolean;
+	winner: string;
+}
 interface ChessBoardPos {
 	newPos: string[][];
 	isPromotion: boolean;
@@ -36,7 +40,7 @@ interface InitialState {
 	};
 	enemyMoves: EnemyMove;
 	isCheck: IsCheck;
-	isCheckMate: boolean;
+	checkMate: CheckMate;
 }
 
 const initialState: InitialState = {
@@ -48,7 +52,7 @@ const initialState: InitialState = {
 	kingPosition: { b: "04", w: "74" },
 	enemyMoves: {},
 	isCheck: { isCheck: false, from: [] },
-	isCheckMate: false,
+	checkMate: { isCheckMate: false, winner: "" },
 };
 
 const chessBoardSlice = createSlice({
@@ -87,8 +91,8 @@ const chessBoardSlice = createSlice({
 				from: action.payload.from,
 			};
 		},
-		isCheckMate: (state, action: PayloadAction<boolean>) => {
-			state.isCheckMate = action.payload;
+		isCheckMate: (state, action: PayloadAction<CheckMate>) => {
+			state.checkMate = action.payload;
 		},
 	},
 });

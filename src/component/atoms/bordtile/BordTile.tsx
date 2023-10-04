@@ -2,7 +2,7 @@ import { ComponentProps } from "react";
 import { VariantProps, cva } from "class-variance-authority";
 import cn from "../../../utils/functions/classHelperFn";
 
-const buttonVariant = cva("h-tileHeight w-tileWidth inline-block", {
+const tileVariant = cva("h-tileHeight w-tileWidth inline-block", {
 	variants: {
 		variant: {
 			dark: "bg-darkTile",
@@ -13,11 +13,11 @@ const buttonVariant = cva("h-tileHeight w-tileWidth inline-block", {
 
 interface props
 	extends ComponentProps<"div">,
-		VariantProps<typeof buttonVariant> {}
+		VariantProps<typeof tileVariant> {}
 
 const BoardTile = ({ className, variant, ...props }: props) => {
 	return (
-		<div className={cn(buttonVariant({ variant, className }))} {...props}>
+		<div className={cn(tileVariant({ variant, className }))} {...props}>
 			{props.children}
 		</div>
 	);

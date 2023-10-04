@@ -4,15 +4,32 @@ import Pieces from "../../atoms/pieces/Pieces";
 import { useEffect, useRef } from "react";
 import {
 	EnemyMove as PiecesMove,
-	kingPos,
+	isCheck as isCheckAction,
 } from "../../../store/chessBoardSlice/chessBoreSlice";
 import isTargetGettingKilled from "../../../utils/functions/isTargetGettingKilled";
 import useGetMoves from "../../../utils/hooks/useGetMoves";
 
 const ChessLogic = () => {
 	const storeMovesEnemy = useRef<PiecesMove>({});
-
+	const dispatch = useAppDispatch();
+	const turn = useAppSelector((state) => state.chess.turn);
+	const kingPos = useAppSelector(
+		(state) =>
+			state.chess.kingPosition[turn as keyof typeof state.chess.kingPosition]
+	);
 	const virtualChess = useAppSelector((state) => state.chess.currentPos);
+	const { isCheck, from } = useAppSelector((state) => state.chess.isCheck);
+	const getMoves = useGetMoves(kingPos, turn, isCheck, from);
+
+	useEffect(() => {
+		const checkObj = isTargetGettingKilled(storeMovesEnemy.current, kingPos);
+		if (checkObj.isCheck) dispatch(isCheckAction(checkObj));
+		if (!checkObj.isCheck) dispatch(isCheckAction(checkObj));
+	}, [turn]);
+
+	useEffect(() => {
+		getMoves.isCheckMateChecker(storeMovesEnemy.current);
+	}, [isCheck]);
 
 	return (
 		<>
@@ -26,6 +43,10 @@ const ChessLogic = () => {
 							file={file}
 							storeMovesEnemy={storeMovesEnemy}
 							virtualChess={virtualChess}
+							isCheck={isCheck}
+							turn={turn}
+							kingPos={kingPos}
+							turnPossibleMoves={getMoves.turnPossibleMoves}
 						/>
 					))
 				)}

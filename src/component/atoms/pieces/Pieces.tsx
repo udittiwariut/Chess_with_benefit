@@ -1,14 +1,10 @@
 import { MutableRefObject, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "../../../store/typedHooks";
 import { produce } from "immer";
-import useGetMoves, {
-	movesType,
-	piecesType,
-} from "../../../utils/hooks/useGetMoves";
+import { movesType, piecesType } from "../../../utils/hooks/useGetMoves";
 import {
 	EnemyMove,
 	chessBoardPos,
-	isCheck as isCheckAction,
 	kingPos as kingPosAction,
 	possibleMoves as possibleMovesAction,
 } from "../../../store/chessBoardSlice/chessBoreSlice";
@@ -16,7 +12,6 @@ import AttackCircle from "../attackCircle/AttackCircle";
 import PassingCircle from "../passingCircle/PassingCircle";
 import PromotionTab from "../promotionTab/PromotionTab";
 import getPieceInfo from "../../../utils/functions/getPieceInfo";
-import isTargetGettingKilled from "../../../utils/functions/isTargetGettingKilled";
 import * as possibleMoves from "./../../../utils/chess_moves/allpieces";
 import isCheckAfterMove from "../../../utils/functions/isCheckAfterMove";
 
@@ -26,6 +21,10 @@ interface props {
 	file: number;
 	storeMovesEnemy: MutableRefObject<EnemyMove>;
 	virtualChess: string[][];
+	isCheck: any;
+	kingPos: any;
+	turn: any;
+	turnPossibleMoves: any;
 }
 
 const Pieces = ({
@@ -34,30 +33,19 @@ const Pieces = ({
 	file,
 	storeMovesEnemy,
 	virtualChess,
+	isCheck,
+	kingPos,
+	turn,
+	turnPossibleMoves,
 }: props) => {
-	let listener: any;
+	let listener: number | undefined;
 	const dispatch = useAppDispatch();
-
-	const turn = useAppSelector((state) => state.chess.turn);
-
-	const { isCheck, from } = useAppSelector((state) => state.chess.isCheck);
-
-	const kingPos = useAppSelector(
-		(state) =>
-			state.chess.kingPosition[turn as keyof typeof state.chess.kingPosition]
-	);
-
-	const getMoves = useGetMoves(kingPos, turn, isCheck, from);
 
 	const tileSize = parseInt(
 		getComputedStyle(document.body).getPropertyValue("--tileSize").charAt(0)
 	);
 
-	// const enemyMoves = useAppSelector((state) => state.chess.enemyMoves);
-
 	const enemy = turn === "w" ? "b" : "w";
-
-	// const virtualChess = useAppSelector((state) => state.chess.currentPos);
 
 	const moves = useAppSelector((state) => state.chess.moves);
 
@@ -109,12 +97,6 @@ const Pieces = ({
 		};
 
 		getMove();
-
-		if (rank * file === 49) {
-			const checkObj = isTargetGettingKilled(storeMovesEnemy.current, kingPos);
-			if (checkObj.isCheck) dispatch(isCheckAction(checkObj));
-			if (!checkObj.isCheck) dispatch(isCheckAction(checkObj));
-		}
 	}, [turn]);
 
 	const ondragStart = (
@@ -139,7 +121,7 @@ const Pieces = ({
 				kingPos
 			)
 		) {
-			const moves = getMoves.turnPossibleMoves(
+			const moves = turnPossibleMoves(
 				piece,
 				rank,
 				file,
@@ -151,7 +133,7 @@ const Pieces = ({
 
 		e.dataTransfer.effectAllowed = "move";
 		e.dataTransfer.setData("text/plain", `${piece}, ${rank}, ${file}`);
-		setTimeout(() => {
+		listener = setTimeout(() => {
 			// @ts-ignore
 			e.target.style.display = "none";
 		}, 0);
@@ -161,10 +143,12 @@ const Pieces = ({
 
 		e.target.style.display = "block";
 		dispatch(possibleMovesAction({}));
+
+		clearTimeout(listener);
 	};
 
 	const ondrop = (e: React.DragEvent<HTMLDivElement>) => {
-		// if (!isMovementPossible()) return;
+		if (!isMovementPossible()) return;
 		e.dataTransfer.setData(
 			"text/plain",
 			`${movesType.PROMOTION}, ${rank}, ${file}`
@@ -197,19 +181,13 @@ const Pieces = ({
 
 	const ondragOver = (e: React.DragEvent<HTMLDivElement>) => {
 		//  @is !isMovementPossible Pause
-		// if (!isMovementPossible()) return;
+		if (!isMovementPossible()) return;
 		e.preventDefault();
 	};
 
-	useEffect(() => {
-		if (rank * file === 49) {
-			getMoves.isCheckMateChecker(storeMovesEnemy.current);
-		}
-	}, [isCheck, turn]);
-
 	return (
 		<>
-			<div /* ////////////////////////////////////////////////////////// add is drag here */
+			<div
 				className={`h-tileHeight z-20 absolute w-tileWidth bg-contain  ${
 					isTurn && "cursor-pointer"
 				} ${piece === piecesType.KING + "-" + turn && isCheck && "bg-red-500"}`}
@@ -221,7 +199,7 @@ const Pieces = ({
 							? `url(src/component/molecule/chessLogic/pieces-basic-svg/${piece}.svg)`
 							: undefined,
 				}}
-				draggable={isTurn} /*  add is Turn here drag here*/
+				draggable={isTurn}
 				onDragStart={(e) => ondragStart(e, rank, file)}
 				onDragEnd={(e) => ondragEnd(e)}
 				onDrop={ondrop}
