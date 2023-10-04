@@ -1,29 +1,20 @@
-import Denotion from "./component/atoms/ranks/denotion";
-import ChessLogic from "./component/molecule/chessLogic/ChessLogic";
-import ChessBoard from "./component/molecule/chessBord/ChesssBoard";
+import Chess from "./component/template/Chess/Chess";
 import "./App.css";
+import Confetti from "react-confetti";
+import { useAppSelector } from "./store/typedHooks";
 
 function App() {
-	const files = Array(8)
-		.fill(0)
-		.map((_, i) => (8 - i).toString());
-
-	const ranks = Array(8)
-		.fill(0)
-		.map((_, i) => String.fromCharCode(i + 97));
+	const { isCheckMate, winner } = useAppSelector(
+		(state) => state.chess.checkMate
+	);
 
 	return (
 		<>
-			<div className=" flex">
-				<Denotion variant="vertical" denotionArray={files} />
-				<div>
-					<div id="chessBoard" className="relative">
-						<ChessBoard ranks={ranks} files={files} />
-						<ChessLogic />
-					</div>
-					<Denotion variant="horizontal" denotionArray={ranks} />
-				</div>
-			</div>
+			{isCheckMate && (
+				<Confetti width={window.innerWidth} height={window.innerHeight} />
+			)}
+
+			<Chess winner={winner} isCheckMate={isCheckMate} />
 		</>
 	);
 }

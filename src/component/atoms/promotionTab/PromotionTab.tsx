@@ -19,7 +19,7 @@ const PromotionTab = ({ file, rank }: { file: number; rank: number }) => {
 			draft[rank][file] = piece + "-" + turn;
 		});
 
-		dispatch(chessBoardPos(newPos));
+		dispatch(chessBoardPos({ newPos, isPromotion: false }));
 	};
 
 	return (

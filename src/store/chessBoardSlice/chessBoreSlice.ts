@@ -2,11 +2,29 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import IvirtualChess from "../../utils/functions/getChessPieces";
 import { CanMoveIn } from "../../utils/hooks/useGetMoves";
 
-interface PieceInfo {
-	piceInfo: string[];
-	rank: number;
-	file: number;
+export interface EnemyMove {
+	[key: string | number]: string[];
 }
+
+interface CheckMate {
+	isCheckMate: boolean;
+	winner: string;
+}
+interface ChessBoardPos {
+	newPos: string[][];
+	isPromotion: boolean;
+	piece?: string;
+}
+interface KingPos {
+	newKingPos: string;
+	pieceType: string;
+}
+
+export interface IsCheck {
+	isCheck: boolean;
+	from: string[];
+}
+
 interface InitialState {
 	currentPos: string[][];
 	history: string[][][];
@@ -16,6 +34,13 @@ interface InitialState {
 		w: string[];
 		b: string[];
 	};
+	kingPosition: {
+		w: string;
+		b: string;
+	};
+	enemyMoves: EnemyMove;
+	isCheck: IsCheck;
+	checkMate: CheckMate;
 }
 
 const initialState: InitialState = {
@@ -24,22 +49,23 @@ const initialState: InitialState = {
 	turn: "w",
 	moves: {},
 	retired: { w: [], b: [] },
+	kingPosition: { b: "04", w: "74" },
+	enemyMoves: {},
+	isCheck: { isCheck: false, from: [] },
+	checkMate: { isCheckMate: false, winner: "" },
 };
 
 const chessBoardSlice = createSlice({
 	name: "chess",
 	initialState,
 	reducers: {
-		chessBoardPos: (state, action: PayloadAction<string[][]>) => {
-			state.currentPos = action.payload;
-			state.history.push(action.payload);
-
-			// @turn based stopper
-			// if (state.turn === "w") state.turn = "b";
-			// else {
-			// 	state.turn = "w";
-			// }
-
+		chessBoardPos: (state, action: PayloadAction<ChessBoardPos>) => {
+			state.currentPos = action.payload.newPos;
+			state.history.push(action.payload.newPos);
+			if (!action.payload.isPromotion) {
+				if (state.turn === "w") state.turn = "b";
+				else state.turn = "w";
+			}
 			state.moves = {};
 		},
 		possibleMoves: (state, action: PayloadAction<CanMoveIn>) => {
@@ -50,9 +76,34 @@ const chessBoardSlice = createSlice({
 				action.payload.slice(-1) as keyof typeof state.retired
 			]?.push(action.payload);
 		},
+		kingPos: (state, action: PayloadAction<KingPos>) => {
+			const player = action.payload.pieceType.slice(-1);
+
+			state.kingPosition[player as keyof typeof state.kingPosition] =
+				action.payload.newKingPos;
+		},
+		enemyMoves: (state, action: PayloadAction<EnemyMove>) => {
+			state.enemyMoves = action.payload;
+		},
+		isCheck: (state, action: PayloadAction<IsCheck>) => {
+			state.isCheck = {
+				isCheck: action.payload.isCheck,
+				from: action.payload.from,
+			};
+		},
+		isCheckMate: (state, action: PayloadAction<CheckMate>) => {
+			state.checkMate = action.payload;
+		},
 	},
 });
 
-export const { chessBoardPos, possibleMoves, retirePiece } =
-	chessBoardSlice.actions;
+export const {
+	chessBoardPos,
+	possibleMoves,
+	retirePiece,
+	kingPos,
+	enemyMoves,
+	isCheck,
+	isCheckMate,
+} = chessBoardSlice.actions;
 export default chessBoardSlice.reducer;
