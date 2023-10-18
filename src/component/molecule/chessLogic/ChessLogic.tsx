@@ -5,21 +5,44 @@ import { useEffect, useRef } from "react";
 import {
 	EnemyMove as PiecesMove,
 	isCheck as isCheckAction,
+	chessBoardPos,
 } from "../../../store/chessBoardSlice/chessBoreSlice";
 import isTargetGettingKilled from "../../../utils/functions/isTargetGettingKilled";
 import useGetMoves from "../../../utils/hooks/useGetMoves";
+import socket from "../../../utils/socket/socket";
+import { UserObj } from "../../../store/user/userSlice";
+import { InitialState } from "../../../store/chessBoardSlice/chessBoreSlice";
 
-const ChessLogic = () => {
+interface SocketObj extends InitialState {
+	isPromotion: boolean;
+}
+
+const ChessLogic = ({ player }: { player: UserObj }) => {
 	const storeMovesEnemy = useRef<PiecesMove>({});
 	const dispatch = useAppDispatch();
 	const turn = useAppSelector((state) => state.chess.turn);
+
+	useEffect(() => {
+		const handleUpdatePos = (newVirtualChess: SocketObj) => {
+			dispatch(
+				chessBoardPos({
+					newPos: newVirtualChess.currentPos,
+					isPromotion: newVirtualChess.isPromotion,
+				})
+			);
+
+			storeMovesEnemy.current = {};
+		};
+		socket.on("updated-pos", handleUpdatePos);
+	}, []);
+
 	const kingPos = useAppSelector(
 		(state) =>
 			state.chess.kingPosition[turn as keyof typeof state.chess.kingPosition]
 	);
 	const virtualChess = useAppSelector((state) => state.chess.currentPos);
 	const { isCheck, from } = useAppSelector((state) => state.chess.isCheck);
-	const getMoves = useGetMoves(kingPos, turn, isCheck, from);
+	const getMoves = useGetMoves(kingPos, turn, isCheck, from, player.piece);
 
 	useEffect(() => {
 		const checkObj = isTargetGettingKilled(storeMovesEnemy.current, kingPos);
@@ -47,6 +70,7 @@ const ChessLogic = () => {
 							turn={turn}
 							kingPos={kingPos}
 							turnPossibleMoves={getMoves.turnPossibleMoves}
+							player={player}
 						/>
 					))
 				)}

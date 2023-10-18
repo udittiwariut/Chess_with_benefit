@@ -1,4 +1,3 @@
-import Confetti from "react-confetti";
 import Denotion from "../../atoms/ranks/denotion";
 import { useAppSelector } from "../../../store/typedHooks";
 import ChessBoard from "../../molecule/chessBord/ChesssBoard";
@@ -15,6 +14,7 @@ function Chess({
 	isCheckMate: boolean;
 }) {
 	const [isModalOpen, setIsModalOpen] = useState(true);
+	const player = useAppSelector((state) => state.user.user);
 
 	const files = Array(8)
 		.fill(0)
@@ -26,18 +26,21 @@ function Chess({
 
 	return (
 		<>
-			<div>
-				<div className="flex">
-					<Denotion variant="vertical" denotionArray={files} />
-					<div>
-						<div id="chessBoard" className="relative">
-							<ChessBoard ranks={ranks} files={files} />
-							<ChessLogic />
+			{player.roomId && (
+				<div>
+					<div className="flex">
+						<Denotion variant="vertical" denotionArray={files} />
+						<div>
+							<div id="chessBoard" className="relative">
+								<ChessBoard ranks={ranks} files={files} />
+								<ChessLogic player={player} />
+							</div>
+							<Denotion variant="horizontal" denotionArray={ranks} />
 						</div>
-						<Denotion variant="horizontal" denotionArray={ranks} />
 					</div>
 				</div>
-			</div>
+			)}
+
 			{isCheckMate && isModalOpen && (
 				<Modal title="Game Over" closeModal={setIsModalOpen}>
 					<GameOverScreen winner={winner} />

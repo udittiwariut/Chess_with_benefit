@@ -25,9 +25,8 @@ export interface IsCheck {
 	from: string[];
 }
 
-interface InitialState {
+export interface InitialState {
 	currentPos: string[][];
-	history: string[][][];
 	turn: string;
 	moves: CanMoveIn;
 	retired: {
@@ -38,19 +37,24 @@ interface InitialState {
 		w: string;
 		b: string;
 	};
-	enemyMoves: EnemyMove;
 	isCheck: IsCheck;
 	checkMate: CheckMate;
 }
 
+export interface SessionObj {
+	w?: string;
+	b?: string;
+	state?: InitialState;
+	session_expired: boolean;
+	redirect: boolean;
+}
+
 const initialState: InitialState = {
 	currentPos: IvirtualChess,
-	history: [IvirtualChess],
 	turn: "w",
 	moves: {},
 	retired: { w: [], b: [] },
 	kingPosition: { b: "04", w: "74" },
-	enemyMoves: {},
 	isCheck: { isCheck: false, from: [] },
 	checkMate: { isCheckMate: false, winner: "" },
 };
@@ -61,7 +65,6 @@ const chessBoardSlice = createSlice({
 	reducers: {
 		chessBoardPos: (state, action: PayloadAction<ChessBoardPos>) => {
 			state.currentPos = action.payload.newPos;
-			state.history.push(action.payload.newPos);
 			if (!action.payload.isPromotion) {
 				if (state.turn === "w") state.turn = "b";
 				else state.turn = "w";
@@ -82,9 +85,7 @@ const chessBoardSlice = createSlice({
 			state.kingPosition[player as keyof typeof state.kingPosition] =
 				action.payload.newKingPos;
 		},
-		enemyMoves: (state, action: PayloadAction<EnemyMove>) => {
-			state.enemyMoves = action.payload;
-		},
+
 		isCheck: (state, action: PayloadAction<IsCheck>) => {
 			state.isCheck = {
 				isCheck: action.payload.isCheck,
@@ -94,6 +95,15 @@ const chessBoardSlice = createSlice({
 		isCheckMate: (state, action: PayloadAction<CheckMate>) => {
 			state.checkMate = action.payload;
 		},
+		setBingingState: (state, action: PayloadAction<InitialState>) => {
+			state.checkMate = action.payload.checkMate;
+			state.currentPos = action.payload.currentPos;
+			state.isCheck = action.payload.isCheck;
+			state.kingPosition = action.payload.kingPosition;
+			state.moves = action.payload.moves;
+			state.retired = action.payload.retired;
+			state.turn = action.payload.turn;
+		},
 	},
 });
 
@@ -102,8 +112,8 @@ export const {
 	possibleMoves,
 	retirePiece,
 	kingPos,
-	enemyMoves,
 	isCheck,
 	isCheckMate,
+	setBingingState,
 } = chessBoardSlice.actions;
 export default chessBoardSlice.reducer;

@@ -1,21 +1,17 @@
-import Chess from "./component/template/Chess/Chess";
+import MainGameScreen from "./component/view/mainGameScreen/MainGameScreen";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import StartGameScreen from "./component/view/StartGameScreen/StartGameScreen";
+
 import "./App.css";
-import Confetti from "react-confetti";
-import { useAppSelector } from "./store/typedHooks";
 
 function App() {
-	const { isCheckMate, winner } = useAppSelector(
-		(state) => state.chess.checkMate
-	);
-
 	return (
-		<>
-			{isCheckMate && (
-				<Confetti width={window.innerWidth} height={window.innerHeight} />
-			)}
-
-			<Chess winner={winner} isCheckMate={isCheckMate} />
-		</>
+		<Router>
+			<Routes>
+				<Route path="/" element={<StartGameScreen />} />
+				<Route path="/:roomId" element={<MainGameScreen />} />
+			</Routes>
+		</Router>
 	);
 }
 
