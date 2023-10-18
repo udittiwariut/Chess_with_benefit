@@ -14,6 +14,9 @@ import PromotionTab from "../promotionTab/PromotionTab";
 import getPieceInfo from "../../../utils/functions/getPieceInfo";
 import * as possibleMoves from "./../../../utils/chess_moves/allpieces";
 import isCheckAfterMove from "../../../utils/functions/isCheckAfterMove";
+import socket from "../../../utils/socket/socket";
+import { UserObj } from "../../../store/user/userSlice";
+import store from "../../../store/store";
 
 interface props {
 	piece: string;
@@ -25,6 +28,7 @@ interface props {
 	kingPos: any;
 	turn: any;
 	turnPossibleMoves: any;
+	player: UserObj;
 }
 
 const Pieces = ({
@@ -37,6 +41,7 @@ const Pieces = ({
 	kingPos,
 	turn,
 	turnPossibleMoves,
+	player,
 }: props) => {
 	let listener: number | undefined;
 	const dispatch = useAppDispatch();
@@ -55,7 +60,10 @@ const Pieces = ({
 
 		if (moves[`${rank}${file}`] === movesType.PASSING) return movesType.PASSING;
 	};
-	const isTurn = turn === piece.charAt(piece.length - 1);
+
+	const isTurn =
+		turn === piece.charAt(piece.length - 1) &&
+		player.piece === piece.charAt(piece.length - 1);
 
 	useEffect(() => {
 		const getMove = () => {
@@ -78,7 +86,9 @@ const Pieces = ({
 					enemy,
 					turn,
 					rank,
-					file
+					file,
+					{},
+					true
 				);
 			}
 
@@ -88,7 +98,8 @@ const Pieces = ({
 					enemy,
 					turn,
 					rank,
-					file
+					file,
+					{}
 				);
 			}
 			const previousMove = { ...storeMovesEnemy.current };
@@ -118,7 +129,8 @@ const Pieces = ({
 				possibleMoves,
 				rank,
 				file,
-				kingPos
+				kingPos,
+				player.piece
 			)
 		) {
 			const moves = turnPossibleMoves(
@@ -169,6 +181,13 @@ const Pieces = ({
 
 		dispatch(chessBoardPos(payload));
 
+		const socketPayload = {
+			...store.getState().chess,
+			isPromotion: payload.isPromotion,
+		};
+
+		socket.emit("new-pos", socketPayload, player.roomId);
+
 		const currentPiecesType = piceInfo[0].slice(0, piceInfo[0].length - 2);
 
 		if (currentPiecesType === piecesType.KING)
@@ -211,7 +230,7 @@ const Pieces = ({
 			{isMovementPossible() === movesType.PASSING && (
 				<PassingCircle rank={rank} file={file} />
 			)}
-			{piece === movesType.PROMOTION && (
+			{piece === movesType.PROMOTION && player.piece === turn && (
 				<PromotionTab rank={rank} file={file} />
 			)}
 		</>

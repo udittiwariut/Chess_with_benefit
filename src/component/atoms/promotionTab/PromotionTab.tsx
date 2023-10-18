@@ -2,6 +2,7 @@ import { useAppSelector, useAppDispatch } from "../../../store/typedHooks";
 import { produce } from "immer";
 import { v4 as uuid } from "uuid";
 import { chessBoardPos } from "../../../store/chessBoardSlice/chessBoreSlice";
+import socket from "../../../utils/socket/socket";
 
 const pieces = ["queen", "rook", "bishop", "knight"];
 
@@ -20,6 +21,7 @@ const PromotionTab = ({ file, rank }: { file: number; rank: number }) => {
 		});
 
 		dispatch(chessBoardPos({ newPos, isPromotion: false }));
+		socket.emit("new-pos", { newPos, isPromotion: false });
 	};
 
 	return (

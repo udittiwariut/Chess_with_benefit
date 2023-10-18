@@ -1,11 +1,11 @@
 import { ComponentProps } from "react";
 import { VariantProps, cva } from "class-variance-authority";
 import cn from "../../../utils/functions/classHelperFn";
-import Icon from "../icon/Icon.";
+import Icon from "./../icon/Icon.";
 import { props as IconProps } from "../icon/Icon.";
 
 const buttonVariant = cva(
-	"bg-transparent font-semibold hover:text-white py-2 px-4  rounded",
+	" font-semibold hover:text-white py-2 px-4 rounded  disabled:opacity-25 disabled:pointer-events-none",
 	{
 		variants: {
 			icon: {
@@ -24,8 +24,8 @@ interface props
 
 const Button = ({ icon, iconProps, className, ...props }: props) => {
 	return (
-		<button className={cn(buttonVariant({ icon, className }))}>
-			{icon && <Icon id={iconProps?.id!} {...iconProps} />}
+		<button {...props} className={cn(buttonVariant({ icon, className }))}>
+			{icon && <Icon id={iconProps!.type} {...iconProps} />}
 			{props.children}
 		</button>
 	);

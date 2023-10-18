@@ -25,7 +25,8 @@ const useGetMoves = (
 	kingPos: string,
 	turn: string,
 	isCheck: boolean,
-	from: string[]
+	from: string[],
+	player: string
 ) => {
 	const dispatch = useAppDispatch();
 
@@ -35,6 +36,7 @@ const useGetMoves = (
 
 	const virtualChess = useAppSelector((state) => state.chess.currentPos);
 	const enemy = turn === "w" ? "b" : "w";
+
 	const turnPossibleMoves = (
 		piece: string,
 		rank: number,

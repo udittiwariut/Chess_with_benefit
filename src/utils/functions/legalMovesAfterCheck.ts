@@ -12,18 +12,12 @@ const legalMovesAfterCheck = (
 
 	const lineOfAttack: string[] = [enemyPos.toString()];
 
-	const start = enemyPos < kingPosNum ? enemyPos : kingPosNum;
-	const end = enemyPos > kingPosNum ? enemyPos : kingPosNum;
+	const start = enemyPos < kingPosNum ? from[0] : kingPos;
+	const end = enemyPos > kingPosNum ? from[0] : kingPos;
 
-	const startArray = start
-		.toString()
-		.split("")
-		.map((num) => parseInt(num));
+	const startArray = start.split("").map((num) => parseInt(num));
 
-	const endArray = end
-		.toString()
-		.split("")
-		.map((num) => parseInt(num));
+	const endArray = end.split("").map((num) => parseInt(num));
 
 	let startRank = startArray[0];
 	let startFile = startArray[1];

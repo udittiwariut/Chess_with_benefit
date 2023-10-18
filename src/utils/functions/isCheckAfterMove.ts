@@ -10,7 +10,8 @@ const isCheckAfterMove = (
 	possibleMoves: any,
 	rank: number,
 	file: number,
-	kingPos: string
+	kingPos: string,
+	player: string
 ) => {
 	const checkObj = isTargetGettingKilled(enemyMoves, `${rank}${file}`);
 
@@ -33,10 +34,14 @@ const isCheckAfterMove = (
 			newVirtualChess,
 			enemy,
 			turn,
-			rank,
-			file
+			enemyPiecePos[0],
+			enemyPiecePos[1]
 		);
-		if (moves[kingPos]) return true;
+
+		if (moves[kingPos]) {
+			console.log("true");
+			return true;
+		}
 
 		return false;
 	}
