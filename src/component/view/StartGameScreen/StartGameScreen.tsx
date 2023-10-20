@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import socket from "../../../utils/socket/socket";
-
+import { useNavigate } from "react-router-dom";
+import { tost } from "../../../store/tost/tostSlice";
 import Input from "../../atoms/Input/input";
 import Button from "../../atoms/button/Button";
 import { v4 as uuid } from "uuid";
 import Card from "../../atoms/card/Card";
 import { useAppDispatch } from "../../../store/typedHooks";
 import store from "../../../store/store";
+import apiCall, { Urls } from "../../../utils/apiCalls/apiCall";
 
 const StartGameScreen = () => {
 	const navigate = useNavigate();
@@ -24,16 +24,18 @@ const StartGameScreen = () => {
 		});
 	};
 
-	const handleClick = () => {
+	const handleClick = async () => {
 		const roomId = uuid();
 		const url = window.location.origin + "/" + roomId;
 		setSearchParams(val);
-
-		socket.emit("create-session", roomId, {
-			w: val,
-			state: store.getState().chess,
-		});
-		setText({ isOnChangeValid: false, val: url });
+		const body = {
+			initialState: store.getState().chess,
+			roomId,
+			playerInfo: { w: val },
+		};
+		const res = await apiCall.post(Urls.CREATE_SESSION, body);
+		if (res.status) setText({ isOnChangeValid: false, val: url });
+		if (res.error) dispatch(tost({ isOpen: true, message: res.error }));
 	};
 
 	const handleCopy = () => {
@@ -51,7 +53,7 @@ const StartGameScreen = () => {
 					onChange={(e) => isOnChangeValid && handleChange(e)}
 				/>
 				<Button
-					className="border border-darkTile text-darkTile hover:bg-darkTile mt-3 "
+					className="border border-darkTile text-darkTile hover:bg-darkTile mt-3"
 					disabled={val.length >= 4 ? false : true}
 					onClick={isOnChangeValid ? handleClick : handleCopy}
 				>

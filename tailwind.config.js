@@ -7,6 +7,10 @@ export default {
 				darkTile: "#D18B47",
 				lightTile: "#FFCE9E",
 			},
+			fontFamily: {
+				Play: ["Play", "sans-serif"],
+			},
+
 			height: {
 				tileHeight: "var(--tileSize)",
 			},

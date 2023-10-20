@@ -3,6 +3,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 const initialState = {
 	isOpen: false,
 	message: "",
+	isTostActionNeeded: false,
 	isPermissionGranted: false,
 };
 
@@ -12,10 +13,16 @@ const tostSlice = createSlice({
 	reducers: {
 		tost: (
 			state,
-			action: PayloadAction<{ isOpen: boolean; message: string }>
+			action: PayloadAction<{
+				isOpen: boolean;
+				message: string;
+				isTostActionNeeded?: boolean;
+			}>
 		) => {
 			state.isOpen = action.payload.isOpen;
 			state.message = action.payload.message;
+			if (action.payload.isTostActionNeeded) state.isTostActionNeeded = true;
+			else state.isTostActionNeeded = false;
 		},
 		tostPermission: (state, action: PayloadAction<boolean>) => {
 			state.isPermissionGranted = action.payload;

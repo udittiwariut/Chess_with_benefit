@@ -1,43 +1,50 @@
 import { useRef, useEffect, useCallback, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../store/typedHooks";
-import ReactPlayer from "react-player";
-import { tost as tostAction } from "../../../store/tost/tostSlice";
-import Button from "../../atoms/button/Button";
+import {
+	tost,
+	tost as tostAction,
+	tostPermission,
+} from "../../../store/tost/tostSlice";
+import Video from "../../atoms/video/Video";
 import socket from "../../../utils/socket/socket";
 import peer from "../../../services/peer";
-import Tost from "../../molecule/tost/Tost";
-
-const sendOfferFromServerHandler = async (
-	from: string,
-	offer: RTCSessionDescriptionInit
-) => {
-	const ans = await peer.getAnswer(offer);
-	if (ans) {
-		socket.emit("send-ans-from-client", from, ans);
-	} else {
-		return;
-	}
-};
-
-const negotiationReqFormServerHandler = async (
-	from: string,
-	offer: RTCSessionDescription
-) => {
-	const ans = await peer.getAnswer(offer);
-	if (ans) {
-		socket.emit("negotiation-done-from-client", from, ans);
-	}
-};
+import { UserObj } from "../../../store/user/userSlice";
+import VideoCallControls from "../../molecule/videoCallContols/VideoCallControls";
+import NameTag from "../../molecule/nameTag/NameTag";
 
 const VideoConference = () => {
 	const dispatch = useAppDispatch();
 	const user = useAppSelector((state) => state.user.user);
 	const opponent = useAppSelector((state) => state.user.opponent);
 	const permission = useAppSelector((state) => state.tost.isPermissionGranted);
-	const remoteStreamRef = useRef<any>({ current: null });
+	const remoteStreamRef = useRef<MediaStream>();
+	const localStreamRef = useRef<MediaStream>();
+	const isCallAccepted = useRef<boolean>(false);
 	const [localStream, setLocalStream] = useState<MediaStream>();
 	const [remoteStream, setRemoteStream] = useState<MediaStream>();
-	const [allowTost, setAllowTost] = useState<boolean>(true);
+	const [isMute, setIsMute] = useState<boolean>(false);
+
+	const sendOfferFromServerHandler = async (
+		from: string,
+		offer: RTCSessionDescriptionInit
+	) => {
+		const ans = await peer.getAnswer(offer);
+		if (ans) {
+			socket.emit("send-ans-from-client", from, ans);
+		} else {
+			return;
+		}
+	};
+
+	const negotiationReqFormServerHandler = async (
+		from: string,
+		offer: RTCSessionDescription
+	) => {
+		const ans = await peer.getAnswer(offer);
+		if (ans) {
+			socket.emit("negotiation-done-from-client", from, ans);
+		}
+	};
 
 	const makeOffer = async (opponentId: string) => {
 		const offer = await peer.getOffer();
@@ -51,26 +58,34 @@ const VideoConference = () => {
 		await peer.setRemoteDescription(ans);
 	};
 
-	useEffect(() => {
-		socket.on("make-offer", makeOffer);
-		socket.on("send-offer-from-server", sendOfferFromServerHandler);
-		socket.on("send-ans-from-server", sendAnsFromServerHandler);
-		socket.on("negotiation-req-from-server", negotiationReqFormServerHandler);
-		socket.on("negotiation-done-from-server", negotiationDoneFromServerHandler);
-	}, []);
+	const cutCallFromRemoteHandler = () => {
+		dispatch(tostPermission(false));
+		setRemoteStream(undefined);
+		dispatch(
+			tostAction({
+				isOpen: true,
+				message: `${opponent.userName} ended video stream`,
+			})
+		);
+		isCallAccepted.current = false;
+	};
 
-	const shareVideo = useCallback(async () => {
-		const stream = await navigator.mediaDevices.getUserMedia({
-			video: true,
-			audio: true,
-		});
-		stream.getTracks().forEach((track) => {
-			peer.peer?.addTrack(track, stream);
-		});
+	const handleUserDisconnected = (user: UserObj) => {
+		dispatch(
+			tost({ isOpen: true, message: `${user.userName} is disconnected` })
+		);
+		setRemoteStream(undefined);
+		isCallAccepted.current = false;
+		dispatch(tostPermission(false));
+	};
 
-		setLocalStream(stream);
-		setAllowTost(false);
-	}, []);
+	const handleCallAcceptedRemote = () => {
+		dispatch(
+			tost({ isOpen: true, message: `${opponent.userName} accepted your call` })
+		);
+
+		isCallAccepted.current = true;
+	};
 
 	const negotiationDoneFromServerHandler = async (
 		from: string,
@@ -80,18 +95,28 @@ const VideoConference = () => {
 	};
 
 	useEffect(() => {
-		if (localStream) {
-			navigator.mediaDevices
-				.getUserMedia({
-					video: true,
-					audio: true,
-				})
-				.then((stream) => {
-					stream.getTracks().forEach((track) => {
-						peer.peer?.addTrack(track, stream);
-					});
-				});
-		}
+		socket.on("make-offer", makeOffer);
+		socket.on("send-offer-from-server", sendOfferFromServerHandler);
+		socket.on("send-ans-from-server", sendAnsFromServerHandler);
+		socket.on("negotiation-req-from-server", negotiationReqFormServerHandler);
+		socket.on("negotiation-done-from-server", negotiationDoneFromServerHandler);
+		socket.on("cut-call-remote", cutCallFromRemoteHandler);
+		socket.on("user-disconnected", handleUserDisconnected);
+		socket.on("call-accepted-remote", handleCallAcceptedRemote);
+	}, []);
+
+	useEffect(() => {
+		if (!localStream && !isCallAccepted.current) return;
+		(async () => {
+			const stream = await navigator.mediaDevices.getUserMedia({
+				video: true,
+				audio: true,
+			});
+			stream.getTracks().forEach((track) => {
+				peer.peer?.addTrack(track, stream);
+			});
+			localStreamRef.current = stream;
+		})();
 	}, [localStream]);
 
 	useEffect(() => {
@@ -106,9 +131,12 @@ const VideoConference = () => {
 	useEffect(() => {
 		if (peer.peer) {
 			peer.peer.ontrack = async ({ streams: [stream] }) => {
-				console.log("on track");
 				dispatch(
-					tostAction({ isOpen: true, message: "Udit wants to video chat" })
+					tostAction({
+						isOpen: true,
+						message: `${opponent.userName} wants to video chat`,
+						isTostActionNeeded: true,
+					})
 				);
 				remoteStreamRef.current = stream;
 			};
@@ -121,40 +149,52 @@ const VideoConference = () => {
 		}
 	}, [permission]);
 
+	const shareVideo = async () => {
+		if (!localStream) {
+			const stream = await navigator.mediaDevices.getUserMedia({
+				video: true,
+				audio: true,
+			});
+			stream.getTracks().forEach((track) => {
+				peer.peer?.addTrack(track, stream);
+			});
+			setLocalStream(stream);
+		}
+	};
+
+	const handleCutCall = async () => {
+		localStream?.getTracks().forEach((track) => {
+			track.stop();
+		});
+		localStreamRef.current?.getTracks().forEach((track) => {
+			track.stop();
+		});
+		setLocalStream(undefined);
+		socket.emit("call-cut", opponent.socketId);
+	};
+
+	const handleAudio = (isMiceOn: boolean) => {
+		if (localStream && localStreamRef.current) {
+			localStream.getAudioTracks()[0].enabled = isMiceOn;
+			localStreamRef.current.getAudioTracks()[0].enabled = isMiceOn;
+		}
+		if (isMiceOn) setIsMute(false);
+		else setIsMute(true);
+	};
+
 	return (
-		<div className="video-container">
-			{remoteStream && (
-				<ReactPlayer
-					playsinline
-					url={remoteStream}
-					muted={true}
-					playing={true}
-					style={{
-						width: "300px",
-						height: "300px",
-						transform: "rotateY(180deg)",
-						backgroundColor: "white",
-					}}
-				></ReactPlayer>
-			)}
-			<ReactPlayer
-				playsinline
-				url={localStream}
-				muted={true}
-				playsInline
-				playing={localStream?.active ? true : false}
-				style={{
-					width: "300px",
-					height: "300px",
-					transform: "rotateY(180deg)",
-					backgroundColor: "white",
-				}}
-			></ReactPlayer>
-			<Button className="bg-red-600">Cut call</Button>
-			<Button className="bg-green-600" onClick={shareVideo}>
-				start call
-			</Button>
-			<Tost allowTost={allowTost} />
+		<div className="video-container p-2 flex-1">
+			<NameTag player={opponent.piece}>{opponent.userName}</NameTag>
+			<Video stream={remoteStream!} muted={false} />
+			<NameTag player={user.piece}>{user.userName}</NameTag>
+			<Video stream={localStream!} muted={true} />
+			<VideoCallControls
+				localStream={localStream}
+				isMute={isMute}
+				shareVideo={shareVideo}
+				handleCutCall={handleCutCall}
+				handleAudio={handleAudio}
+			/>
 		</div>
 	);
 };
