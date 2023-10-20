@@ -1,28 +1,27 @@
 import { useState } from "react";
-import socket from "../../../utils/socket/socket";
 import Input from "../../atoms/Input/input";
+import { tost } from "../../../store/tost/tostSlice";
 import Button from "../../atoms/button/Button";
 import Card from "../../atoms/card/Card";
-import {
-	useNavigate,
-	useSearchParams,
-	useParams,
-	SetURLSearchParams,
-} from "react-router-dom";
+import { useParams, SetURLSearchParams } from "react-router-dom";
+import apiCall, { Urls } from "../../../utils/apiCalls/apiCall";
+import { useAppDispatch } from "../../../store/typedHooks";
 
 const JoinGameScreen = ({
 	setSearchParams,
 }: {
 	setSearchParams: SetURLSearchParams;
 }) => {
+	const dispatch = useAppDispatch();
 	const param = useParams();
 	const [val, setText] = useState("");
 
-	const handleClick = () => {
+	const handleClick = async () => {
 		const roomId = param.roomId;
-		socket.emit("join-session", roomId, { b: val });
-
-		setSearchParams({ user: val, player: "b" });
+		const body = { roomId, playerInfo: { b: val } };
+		const res = await apiCall.post(Urls.JOIN_SESSION, body);
+		if (res.status) setSearchParams({ user: val, player: "b" });
+		if (res.error) dispatch(tost({ isOpen: true, message: res.error }));
 	};
 
 	return (
@@ -36,6 +35,7 @@ const JoinGameScreen = ({
 				<Button
 					className="border border-darkTile text-darkTile hover:bg-darkTile mt-3 "
 					onClick={handleClick}
+					disabled={val.length >= 4 ? false : true}
 				>
 					join Game
 				</Button>

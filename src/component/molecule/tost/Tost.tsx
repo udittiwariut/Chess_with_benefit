@@ -1,4 +1,4 @@
-import React, { ComponentProps, useCallback, useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import Card from "../../atoms/card/Card";
 import {
 	tost as tostAction,
@@ -6,25 +6,27 @@ import {
 } from "../../../store/tost/tostSlice";
 import Button from "../../atoms/button/Button";
 import { useAppSelector, useAppDispatch } from "../../../store/typedHooks";
-import peer from "../../../services/peer";
-
-// const TostVariant = cva("p-2.5 absolute top-0 right-0 border border-lightTile");
+import socket from "../../../utils/socket/socket";
 
 const DEFAULT_TOST_AUTO_CLOSE = 10000;
+const DEFAULT_AFTER_CLICK_CLOSE = 200;
 
-const Tost = ({ allowTost }: { allowTost: boolean }) => {
+const Tost = () => {
 	const dispatch = useAppDispatch();
-	const { isOpen, message } = useAppSelector((state) => state.tost);
+	const opponentSocketId = useAppSelector(
+		(state) => state.user.opponent.socketId
+	);
+	const { isOpen, message, isTostActionNeeded } = useAppSelector(
+		(state) => state.tost
+	);
 
 	const handleClose = useCallback(() => {
 		dispatch(tostAction({ isOpen: false, message: "" }));
 	}, []);
 
 	useEffect(() => {
-		if (isOpen && allowTost) {
+		if (isOpen) {
 			setTimeout(() => {
-				console.log("is Working");
-
 				dispatch(tostAction({ isOpen: false, message: "" }));
 			}, DEFAULT_TOST_AUTO_CLOSE);
 		}
@@ -32,9 +34,10 @@ const Tost = ({ allowTost }: { allowTost: boolean }) => {
 
 	const clickHandler = async () => {
 		dispatch(tostPermission(true));
+		socket.emit("call-accepted", opponentSocketId);
 		setTimeout(() => {
 			dispatch(tostAction({ isOpen: false, message: "" }));
-		}, 200);
+		}, DEFAULT_AFTER_CLICK_CLOSE);
 	};
 
 	return (
@@ -45,7 +48,9 @@ const Tost = ({ allowTost }: { allowTost: boolean }) => {
 			type={"tost"}
 		>
 			<div className="flex items-center">
-				<div className="text-base flex items-center">{message}</div>
+				<div className="text-base flex items-center font-semibold">
+					{message}
+				</div>
 				<Button
 					onClick={handleClose}
 					className="hover:text-black p-0 ml-7"
@@ -53,15 +58,14 @@ const Tost = ({ allowTost }: { allowTost: boolean }) => {
 					iconProps={{ type: "CLOSE", className: "h-5 w-5" }}
 				></Button>
 			</div>
-			<Button
-				onClick={clickHandler}
-				className="border text-sm pt-1 pb-1 border-darkTile text-darkTile hover:bg-darkTile mt-3  "
-			>
-				Allow
-			</Button>
-			<Button className="border text-sm pt-1 pb-1 border-darkTile text-darkTile hover:bg-darkTile mt-3  ">
-				Don't Allow
-			</Button>
+			{isTostActionNeeded && (
+				<Button
+					onClick={clickHandler}
+					className="border text-sm pt-1 pb-1 border-darkTile text-darkTile hover:bg-darkTile mt-3  "
+				>
+					Allow
+				</Button>
+			)}
 		</Card>
 	);
 };

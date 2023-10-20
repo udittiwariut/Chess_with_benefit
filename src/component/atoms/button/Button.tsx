@@ -5,7 +5,7 @@ import Icon from "./../icon/Icon.";
 import { props as IconProps } from "../icon/Icon.";
 
 const buttonVariant = cva(
-	" font-semibold hover:text-white py-2 px-4 rounded  disabled:opacity-25 disabled:pointer-events-none",
+	" font-semibold hover:text-white py-2 px-4 rounded  disabled:opacity-50 disabled:pointer-events-none",
 	{
 		variants: {
 			icon: {

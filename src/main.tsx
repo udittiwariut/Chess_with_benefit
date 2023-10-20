@@ -8,5 +8,6 @@ import store from "./store/store.ts";
 ReactDOM.createRoot(document.getElementById("root")!).render(
 	<Provider store={store}>
 		<App />
+		<Tost />
 	</Provider>
 );

@@ -7,11 +7,12 @@ import VideoConference from "../../template/videoConference/VideoConference";
 import { useAppSelector } from "../../../store/typedHooks";
 import { UserObj, user as userReducer } from "../../../store/user/userSlice";
 import JoinGameScreen from "../joinGameScreen/JoinGameScreen";
-import axios from "axios";
-import { SessionObj } from "../../../store/chessBoardSlice/chessBoreSlice";
 import { setBingingState } from "../../../store/chessBoardSlice/chessBoreSlice";
 import socket from "../../../utils/socket/socket";
 import { opponent } from "../../../store/user/userSlice";
+import apiCall from "../../../utils/apiCalls/apiCall";
+import Loader from "../../atoms/loader/Loader";
+import Waiting from "../../atoms/wating/Wating";
 
 function MainGameScreen() {
 	const dispatch = useAppDispatch();
@@ -22,6 +23,8 @@ function MainGameScreen() {
 		isLoading: false,
 		isPlayerPresent: true,
 		redirect: false,
+		loaded: false,
+		bothPlayerJoined: false,
 	});
 
 	const { isCheckMate, winner } = useAppSelector(
@@ -33,22 +36,22 @@ function MainGameScreen() {
 			const opponentArray = userInRoom.filter(
 				(user) => user.piece != searchParams.get("player")
 			);
-			if (opponentArray[0]) dispatch(opponent(opponentArray[0]));
+			if (opponentArray[0]) {
+				dispatch(opponent(opponentArray[0]));
+				setSessionState({ ...sessionState, bothPlayerJoined: true });
+			}
 		});
 	}, []);
 
 	useEffect(() => {
 		const sessionChecker = async () => {
-			const url = `${import.meta.env.VITE_BASE_URL}/${
-				param.roomId
-			}?player=${searchParams.get("player")}`;
+			setSessionState({ ...sessionState, isLoading: true });
 
-			const res = await axios.get(url);
-
-			const data: SessionObj = res.data;
+			const url = `${param.roomId}?player=${searchParams.get("player")}`;
+			const data = await apiCall.get(url);
 
 			if (data.redirect) {
-				setSessionState({ ...sessionState, redirect: true });
+				setSessionState({ ...sessionState, redirect: true, isLoading: false });
 				return;
 			} else {
 				setSessionState({ ...sessionState, redirect: false });
@@ -70,24 +73,33 @@ function MainGameScreen() {
 			);
 
 			dispatch(setBingingState(data.state!));
+			setSessionState({ ...sessionState, isLoading: false });
 		};
 		sessionChecker();
 	}, [param, searchParams.get("user"), searchParams.get("player")]);
+
+	if (sessionState.isLoading) {
+		return <Loader />;
+	}
 
 	if (sessionState.redirect) {
 		return <JoinGameScreen setSearchParams={setSearchParams} />;
 	}
 
+	if (!sessionState.isLoading && !sessionState.bothPlayerJoined) {
+		return <Waiting />;
+	}
+
 	return (
-		<>
+		<div className="h-screen w-screen">
 			{isCheckMate && (
 				<Confetti width={window.innerWidth} height={window.innerHeight} />
 			)}
-			<div className="flex">
+			<div className="flex h-full p-2 ">
 				<Chess winner={winner} isCheckMate={isCheckMate} />
 				<VideoConference />
 			</div>
-		</>
+		</div>
 	);
 }
 
