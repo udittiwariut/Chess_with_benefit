@@ -7,7 +7,7 @@ const pawn = (
 	enemy: string,
 	rank: number,
 	file: number,
-	enemyMoves: EnemyMove,
+	_: EnemyMove,
 	precautionMoves: boolean = false
 ) => {
 	let canMoveIn: CanMoveIn = {};

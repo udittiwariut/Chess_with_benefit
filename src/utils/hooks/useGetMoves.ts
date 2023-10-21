@@ -26,7 +26,7 @@ const useGetMoves = (
 	turn: string,
 	isCheck: boolean,
 	from: string[],
-	player: string
+	_: string
 ) => {
 	const dispatch = useAppDispatch();
 

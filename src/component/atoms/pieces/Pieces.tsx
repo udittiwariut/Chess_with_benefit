@@ -43,7 +43,7 @@ const Pieces = ({
 	turnPossibleMoves,
 	player,
 }: props) => {
-	let listener: number | undefined;
+	let listener: any;
 	const dispatch = useAppDispatch();
 
 	const tileSize = parseInt(

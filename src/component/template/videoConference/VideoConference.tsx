@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../store/typedHooks";
 import {
 	tost,
@@ -52,7 +52,7 @@ const VideoConference = () => {
 	};
 
 	const sendAnsFromServerHandler = async (
-		from: string,
+		_: string,
 		ans: RTCSessionDescriptionInit
 	) => {
 		await peer.setRemoteDescription(ans);
@@ -88,7 +88,7 @@ const VideoConference = () => {
 	};
 
 	const negotiationDoneFromServerHandler = async (
-		from: string,
+		_: string,
 		ans: RTCSessionDescription
 	) => {
 		await peer.setRemoteDescription(ans);

@@ -11,7 +11,7 @@ const isCheckAfterMove = (
 	rank: number,
 	file: number,
 	kingPos: string,
-	player: string
+	_: string
 ) => {
 	const checkObj = isTargetGettingKilled(enemyMoves, `${rank}${file}`);
 
