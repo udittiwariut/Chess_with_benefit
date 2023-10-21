@@ -1,4 +1,3 @@
-import { EnemyMove } from "../../store/chessBoardSlice/chessBoreSlice";
 import { CanMoveIn } from "../hooks/useGetMoves";
 
 const legalMovesAfterCheck = (

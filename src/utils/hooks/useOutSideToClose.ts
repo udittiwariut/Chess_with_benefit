@@ -1,4 +1,4 @@
-import React, { useEffect, MouseEvent } from "react";
+import { useEffect } from "react";
 
 const useOutSideToClose = (menuRef: any, setActive: any) => {
 	useEffect(() => {

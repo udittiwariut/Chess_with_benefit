@@ -7,7 +7,7 @@ export const Urls = {
 };
 
 class ApiCall {
-	constructor(private baseUrl: string = baseUrlOfServer) {
+	constructor(public baseUrl: string = baseUrlOfServer) {
 		this.baseUrl = baseUrl;
 	}
 

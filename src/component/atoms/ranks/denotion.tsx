@@ -1,5 +1,5 @@
 import { VariantProps, cva } from "class-variance-authority";
-import { ComponentProps, useEffect } from "react";
+import { ComponentProps } from "react";
 import { v4 as uuid } from "uuid";
 
 const denotionVariant = cva(null, {

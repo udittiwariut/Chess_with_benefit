@@ -1,4 +1,4 @@
-import React, { ComponentProps } from "react";
+import { ComponentProps } from "react";
 import { cva, VariantProps } from "class-variance-authority";
 import cn from "../../../utils/functions/classHelperFn";
 
