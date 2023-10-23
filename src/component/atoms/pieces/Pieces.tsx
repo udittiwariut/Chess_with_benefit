@@ -18,6 +18,7 @@ import socket from "../../../utils/socket/socket";
 import { UserObj } from "../../../store/user/userSlice";
 import store from "../../../store/store";
 import "./../../../icon.css";
+import { tost } from "../../../store/tost/tostSlice";
 
 interface props {
 	piece: string;
@@ -46,6 +47,9 @@ const Pieces = ({
 }: props) => {
 	let listener: any;
 	const dispatch = useAppDispatch();
+	const isBothPlayerConnected = useAppSelector(
+		(state) => state.user.isBothPlayerConnected
+	);
 
 	const tileSize = parseInt(
 		getComputedStyle(document.body).getPropertyValue("--tileSize").charAt(0)
@@ -120,6 +124,11 @@ const Pieces = ({
 			e.preventDefault();
 			return;
 		}
+
+		if (!isBothPlayerConnected)
+			dispatch(
+				tost({ isOpen: true, message: "Wait for other player to join" })
+			);
 
 		if (
 			!isCheckAfterMove(
@@ -210,8 +219,6 @@ const Pieces = ({
 		if (!isMovementPossible()) return;
 		e.preventDefault();
 	};
-
-	console.log(piece);
 
 	return (
 		<>

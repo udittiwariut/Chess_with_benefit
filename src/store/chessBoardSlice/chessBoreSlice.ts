@@ -38,6 +38,7 @@ export interface InitialState {
 	};
 	isCheck: IsCheck;
 	checkMate: CheckMate;
+	isSessionExist?: boolean;
 }
 
 export interface SessionObj {
@@ -56,6 +57,7 @@ const initialState: InitialState = {
 	kingPosition: { b: "04", w: "74" },
 	isCheck: { isCheck: false, from: [] },
 	checkMate: { isCheckMate: false, winner: "" },
+	isSessionExist: false,
 };
 
 const chessBoardSlice = createSlice({

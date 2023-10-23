@@ -5,7 +5,11 @@ import Confetti from "react-confetti";
 import Chess from "../../template/Chess/Chess";
 import VideoConference from "../../template/videoConference/VideoConference";
 import { useAppSelector } from "../../../store/typedHooks";
-import { UserObj, user as userReducer } from "../../../store/user/userSlice";
+import {
+	UserObj,
+	isBothPlayerConnected,
+	user as userReducer,
+} from "../../../store/user/userSlice";
 import JoinGameScreen from "../joinGameScreen/JoinGameScreen";
 import { setBingingState } from "../../../store/chessBoardSlice/chessBoreSlice";
 import socket from "../../../utils/socket/socket";
@@ -13,13 +17,20 @@ import { opponent } from "../../../store/user/userSlice";
 import apiCall from "../../../utils/apiCalls/apiCall";
 import Loader from "../../atoms/loader/Loader";
 import Waiting from "../../atoms/wating/Wating";
+import { tost } from "../../../store/tost/tostSlice";
+import SessionExpired from "../sessionExpried/SessionExpired";
 
 function MainGameScreen() {
+	const sessionTimeOutId = useAppSelector(
+		(state) => state.user.disConnectTimeOutId
+	);
+
 	const dispatch = useAppDispatch();
 	const param = useParams();
 
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [sessionState, setSessionState] = useState({
+		sessionExpired: false,
 		isLoading: false,
 		isPlayerPresent: true,
 		redirect: false,
@@ -33,11 +44,23 @@ function MainGameScreen() {
 
 	useEffect(() => {
 		socket.on("both-player-joined", (userInRoom: UserObj[]) => {
+			///
+
 			const opponentArray = userInRoom.filter(
 				(user) => user.piece != searchParams.get("player")
 			);
 			if (opponentArray[0]) {
+				dispatch(isBothPlayerConnected(true));
 				dispatch(opponent(opponentArray[0]));
+				if (sessionTimeOutId) clearTimeout(sessionTimeOutId);
+
+				dispatch(
+					tost({
+						isOpen: true,
+						message: `${opponentArray[0].userName} has joined the game`,
+					})
+				);
+
 				setSessionState({ ...sessionState, bothPlayerJoined: true });
 			}
 		});
@@ -49,6 +72,11 @@ function MainGameScreen() {
 
 			const url = `${param.roomId}?player=${searchParams.get("player")}`;
 			const data = await apiCall.get(url);
+
+			if (data.session_expired) {
+				setSessionState({ ...sessionState, sessionExpired: true });
+				return;
+			}
 
 			if (data.redirect) {
 				setSessionState({ ...sessionState, redirect: true, isLoading: false });
@@ -80,6 +108,10 @@ function MainGameScreen() {
 
 	if (sessionState.isLoading) {
 		return <Loader />;
+	}
+
+	if (sessionState.sessionExpired) {
+		return <SessionExpired />;
 	}
 
 	if (sessionState.redirect) {

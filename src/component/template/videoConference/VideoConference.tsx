@@ -8,9 +8,10 @@ import {
 import Video from "../../atoms/video/Video";
 import socket from "../../../utils/socket/socket";
 import peer from "../../../services/peer";
-import { UserObj } from "../../../store/user/userSlice";
+import { UserObj, setDisConnectTimeOutId } from "../../../store/user/userSlice";
 import VideoCallControls from "../../molecule/videoCallContols/VideoCallControls";
 import NameTag from "../../molecule/nameTag/NameTag";
+import { isBothPlayerConnected } from "../../../store/user/userSlice";
 
 const VideoConference = () => {
 	const dispatch = useAppDispatch();
@@ -72,11 +73,21 @@ const VideoConference = () => {
 
 	const handleUserDisconnected = (user: UserObj) => {
 		dispatch(
-			tost({ isOpen: true, message: `${user.userName} is disconnected` })
+			tost({
+				isOpen: true,
+				message: `${user.userName} is disconnected this session will expire in 5min if not reconnected `,
+			})
 		);
 		setRemoteStream(undefined);
 		isCallAccepted.current = false;
 		dispatch(tostPermission(false));
+		dispatch(isBothPlayerConnected(false));
+		// refresh after session expire
+		//clear time is located in Main game screen
+		let sessionTimer = setTimeout(() => {
+			window.location.reload();
+		}, 1000 * 60 * 5 + 400);
+		dispatch(setDisConnectTimeOutId(sessionTimer));
 	};
 
 	const handleCallAcceptedRemote = () => {

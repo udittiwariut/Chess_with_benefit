@@ -7,8 +7,9 @@ import {
 import Button from "../../atoms/button/Button";
 import { useAppSelector, useAppDispatch } from "../../../store/typedHooks";
 import socket from "../../../utils/socket/socket";
+let timer: NodeJS.Timeout;
 
-const DEFAULT_TOST_AUTO_CLOSE = 10000;
+const DEFAULT_TOST_AUTO_CLOSE = 6000;
 const DEFAULT_AFTER_CLICK_CLOSE = 200;
 
 const Tost = () => {
@@ -16,6 +17,7 @@ const Tost = () => {
 	const opponentSocketId = useAppSelector(
 		(state) => state.user.opponent.socketId
 	);
+
 	const { isOpen, message, isTostActionNeeded } = useAppSelector(
 		(state) => state.tost
 	);
@@ -26,11 +28,12 @@ const Tost = () => {
 
 	useEffect(() => {
 		if (isOpen) {
-			setTimeout(() => {
+			if (timer) clearTimeout(timer);
+			timer = setTimeout(() => {
 				dispatch(tostAction({ isOpen: false, message: "" }));
 			}, DEFAULT_TOST_AUTO_CLOSE);
 		}
-	}, [isOpen]);
+	}, [isOpen, message]);
 
 	const clickHandler = async () => {
 		dispatch(tostPermission(true));

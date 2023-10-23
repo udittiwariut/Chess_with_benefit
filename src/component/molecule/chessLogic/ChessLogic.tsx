@@ -32,21 +32,17 @@ const ChessLogic = ({ player }: { player: UserObj }) => {
 	const { isCheck, from } = useAppSelector((state) => state.chess.isCheck);
 	const getMoves = useGetMoves(kingPos, turn, isCheck, from, player.piece);
 
-	useEffect(() => {
-		const handleUpdatePos = (newVirtualChess: SocketObj) => {
-			dispatch(
-				chessBoardPos({
-					newPos: newVirtualChess.currentPos,
-					isPromotion: newVirtualChess.isPromotion,
-				})
-			);
-			if (Object.keys(newVirtualChess.kingPosAction).length) {
-				dispatch(kingPosAction(newVirtualChess.kingPosAction));
-			}
-			storeMovesEnemy.current = {};
-		};
-		socket.on("updated-pos", handleUpdatePos);
-	}, []);
+	const handleUpdatePos = (newVirtualChess: SocketObj) => {
+		dispatch(
+			chessBoardPos({
+				newPos: newVirtualChess.currentPos,
+				isPromotion: newVirtualChess.isPromotion,
+			})
+		);
+		if (Object.keys(newVirtualChess.kingPosAction).length) {
+			dispatch(kingPosAction(newVirtualChess.kingPosAction));
+		}
+	};
 
 	useEffect(() => {
 		const checkObj = isTargetGettingKilled(storeMovesEnemy.current, kingPos);
@@ -55,7 +51,12 @@ const ChessLogic = ({ player }: { player: UserObj }) => {
 			getMoves.isCheckMateChecker(storeMovesEnemy.current);
 		}
 		if (!checkObj.isCheck) dispatch(isCheckAction(checkObj));
+		storeMovesEnemy.current = {};
 	}, [turn]);
+
+	useEffect(() => {
+		socket.on("updated-pos", handleUpdatePos);
+	}, []);
 
 	return (
 		<>
