@@ -1,5 +1,4 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import IvirtualChess from "../../utils/functions/getChessPieces";
 import { CanMoveIn } from "../../utils/hooks/useGetMoves";
 
 export interface EnemyMove {
@@ -50,7 +49,7 @@ export interface SessionObj {
 }
 
 const initialState: InitialState = {
-	currentPos: IvirtualChess,
+	currentPos: [],
 	turn: "w",
 	moves: {},
 	retired: { w: [], b: [] },
