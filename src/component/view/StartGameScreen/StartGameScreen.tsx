@@ -52,9 +52,7 @@ const StartGameScreen = () => {
 					value={val}
 					onChange={(e) => isOnChangeValid && handleChange(e)}
 				/>
-				<p className="text-slate-600">
-					Send this link to your friend to start playing
-				</p>
+
 				<Button
 					className="border border-darkTile text-darkTile hover:bg-darkTile mt-3"
 					disabled={val.length >= 4 ? false : true}
