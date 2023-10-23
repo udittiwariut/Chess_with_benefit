@@ -17,6 +17,8 @@ import isCheckAfterMove from "../../../utils/functions/isCheckAfterMove";
 import socket from "../../../utils/socket/socket";
 import { UserObj } from "../../../store/user/userSlice";
 import store from "../../../store/store";
+import "./../../../icon.css";
+import { tost } from "../../../store/tost/tostSlice";
 
 interface props {
 	piece: string;
@@ -45,6 +47,9 @@ const Pieces = ({
 }: props) => {
 	let listener: any;
 	const dispatch = useAppDispatch();
+	const isBothPlayerConnected = useAppSelector(
+		(state) => state.user.isBothPlayerConnected
+	);
 
 	const tileSize = parseInt(
 		getComputedStyle(document.body).getPropertyValue("--tileSize").charAt(0)
@@ -120,6 +125,11 @@ const Pieces = ({
 			return;
 		}
 
+		if (!isBothPlayerConnected)
+			dispatch(
+				tost({ isOpen: true, message: "Wait for other player to join" })
+			);
+
 		if (
 			!isCheckAfterMove(
 				isCheck,
@@ -184,16 +194,22 @@ const Pieces = ({
 		const socketPayload = {
 			...store.getState().chess,
 			isPromotion: payload.isPromotion,
+			kingPosAction: {},
 		};
-
-		socket.emit("new-pos", socketPayload, player.roomId);
 
 		const currentPiecesType = piceInfo[0].slice(0, piceInfo[0].length - 2);
 
-		if (currentPiecesType === piecesType.KING)
+		if (currentPiecesType === piecesType.KING) {
 			dispatch(
 				kingPosAction({ newKingPos: `${rank}${file}`, pieceType: piece })
 			);
+			socketPayload.kingPosAction = {
+				newKingPos: `${rank}${file}`,
+				pieceType: piece,
+			};
+		}
+
+		socket.emit("new-pos", socketPayload, player.roomId);
 
 		storeMovesEnemy.current = {};
 	};
@@ -207,16 +223,14 @@ const Pieces = ({
 	return (
 		<>
 			<div
-				className={`h-tileHeight z-20 absolute w-tileWidth bg-contain  ${
+				className={`h-tileHeight z-20 absolute w-tileWidth  bg-contain  ${
 					isTurn && "cursor-pointer"
-				} ${piece === piecesType.KING + "-" + turn && isCheck && "bg-red-500"}`}
+				} ${
+					piece === piecesType.KING + "-" + turn && isCheck && "bg-red-500"
+				} ${piece && piece != movesType.PROMOTION && piece}`}
 				style={{
 					top: `${tileSize * rank}rem`,
 					left: `${tileSize * file}rem`,
-					backgroundImage:
-						piece && piece != movesType.PROMOTION
-							? `url(src/component/molecule/chessLogic/pieces-basic-svg/${piece}.svg)`
-							: undefined,
 				}}
 				draggable={isTurn}
 				onDragStart={(e) => ondragStart(e, rank, file)}

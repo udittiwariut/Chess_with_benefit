@@ -9,6 +9,8 @@ export interface UserObj {
 interface InitialState {
 	user: UserObj;
 	opponent: UserObj;
+	isBothPlayerConnected: boolean;
+	disConnectTimeOutId?: NodeJS.Timeout;
 }
 const initialState: InitialState = {
 	user: {
@@ -21,6 +23,8 @@ const initialState: InitialState = {
 		piece: "",
 		socketId: "",
 	},
+	isBothPlayerConnected: true,
+	disConnectTimeOutId: undefined,
 };
 
 const userSlice = createSlice({
@@ -37,9 +41,16 @@ const userSlice = createSlice({
 			state.opponent.piece = action.payload.piece;
 			state.opponent.socketId = action.payload.socketId;
 		},
+		isBothPlayerConnected: (state, action: PayloadAction<boolean>) => {
+			state.isBothPlayerConnected = action.payload;
+		},
+		setDisConnectTimeOutId: (state, action: PayloadAction<NodeJS.Timeout>) => {
+			state.disConnectTimeOutId = action.payload;
+		},
 	},
 });
 
-export const { user, opponent } = userSlice.actions;
+export const { user, opponent, isBothPlayerConnected, setDisConnectTimeOutId } =
+	userSlice.actions;
 
 export default userSlice.reducer;

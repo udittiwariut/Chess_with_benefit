@@ -3,6 +3,7 @@ import { v4 as uuid } from "uuid";
 import Pieces from "../../atoms/pieces/Pieces";
 import { useEffect, useRef } from "react";
 import {
+	kingPos as kingPosAction,
 	EnemyMove as PiecesMove,
 	isCheck as isCheckAction,
 	chessBoardPos,
@@ -15,26 +16,13 @@ import { InitialState } from "../../../store/chessBoardSlice/chessBoreSlice";
 
 interface SocketObj extends InitialState {
 	isPromotion: boolean;
+	kingPosAction: any;
 }
 
 const ChessLogic = ({ player }: { player: UserObj }) => {
 	const storeMovesEnemy = useRef<PiecesMove>({});
 	const dispatch = useAppDispatch();
 	const turn = useAppSelector((state) => state.chess.turn);
-
-	useEffect(() => {
-		const handleUpdatePos = (newVirtualChess: SocketObj) => {
-			dispatch(
-				chessBoardPos({
-					newPos: newVirtualChess.currentPos,
-					isPromotion: newVirtualChess.isPromotion,
-				})
-			);
-
-			storeMovesEnemy.current = {};
-		};
-		socket.on("updated-pos", handleUpdatePos);
-	}, []);
 
 	const kingPos = useAppSelector(
 		(state) =>
@@ -44,15 +32,31 @@ const ChessLogic = ({ player }: { player: UserObj }) => {
 	const { isCheck, from } = useAppSelector((state) => state.chess.isCheck);
 	const getMoves = useGetMoves(kingPos, turn, isCheck, from, player.piece);
 
+	const handleUpdatePos = (newVirtualChess: SocketObj) => {
+		dispatch(
+			chessBoardPos({
+				newPos: newVirtualChess.currentPos,
+				isPromotion: newVirtualChess.isPromotion,
+			})
+		);
+		if (Object.keys(newVirtualChess.kingPosAction).length) {
+			dispatch(kingPosAction(newVirtualChess.kingPosAction));
+		}
+	};
+
 	useEffect(() => {
 		const checkObj = isTargetGettingKilled(storeMovesEnemy.current, kingPos);
-		if (checkObj.isCheck) dispatch(isCheckAction(checkObj));
+		if (checkObj.isCheck) {
+			dispatch(isCheckAction(checkObj));
+			getMoves.isCheckMateChecker(storeMovesEnemy.current);
+		}
 		if (!checkObj.isCheck) dispatch(isCheckAction(checkObj));
+		storeMovesEnemy.current = {};
 	}, [turn]);
 
 	useEffect(() => {
-		getMoves.isCheckMateChecker(storeMovesEnemy.current);
-	}, [isCheck]);
+		socket.on("updated-pos", handleUpdatePos);
+	}, []);
 
 	return (
 		<>

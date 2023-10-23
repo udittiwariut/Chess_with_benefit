@@ -1,5 +1,4 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import IvirtualChess from "../../utils/functions/getChessPieces";
 import { CanMoveIn } from "../../utils/hooks/useGetMoves";
 
 export interface EnemyMove {
@@ -39,6 +38,7 @@ export interface InitialState {
 	};
 	isCheck: IsCheck;
 	checkMate: CheckMate;
+	isSessionExist?: boolean;
 }
 
 export interface SessionObj {
@@ -50,13 +50,14 @@ export interface SessionObj {
 }
 
 const initialState: InitialState = {
-	currentPos: IvirtualChess,
+	currentPos: [],
 	turn: "w",
 	moves: {},
 	retired: { w: [], b: [] },
 	kingPosition: { b: "04", w: "74" },
 	isCheck: { isCheck: false, from: [] },
 	checkMate: { isCheckMate: false, winner: "" },
+	isSessionExist: false,
 };
 
 const chessBoardSlice = createSlice({
