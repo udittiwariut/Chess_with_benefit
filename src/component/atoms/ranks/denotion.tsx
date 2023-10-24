@@ -6,7 +6,7 @@ const denotionVariant = cva(null, {
 	variants: {
 		variant: {
 			vertical: "h-tileHeight w-5 flex items-center justify-center",
-			horizontal: "w-tileWidth h-5 text-center grow",
+			horizontal: "w-tileWidth text-center grow",
 		},
 	},
 });

@@ -16,7 +16,7 @@ const VideoCallControls = ({
 	handleAudio,
 }: props) => {
 	return (
-		<div className="flex justify-center gap-6 p-3">
+		<div className="flex justify-center gap-6 pt-3 pb-1">
 			<Button
 				icon={"iconLeft"}
 				iconProps={{ type: "VIDEO_CAMERA", className: "w-7 h-7" }}
