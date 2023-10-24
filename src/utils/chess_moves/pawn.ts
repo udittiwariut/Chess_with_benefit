@@ -65,10 +65,6 @@ const pawn = (
 	calculateMoves(num!);
 	canMoveIn[`${rank}${file}`] = movesType.SELF;
 
-	if (precautionMoves) {
-		console.log(canMoveIn, "-------------------------pawn precaution move");
-	}
-
 	return canMoveIn;
 };
 
