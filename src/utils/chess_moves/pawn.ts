@@ -31,7 +31,7 @@ const pawn = (
 			virtualChess[nextPosRank + 1 * val]?.[nextPosFile + 1]?.slice(-1) ===
 				enemy ||
 			(precautionMoves &&
-				virtualChess[nextPosRank + 1 * val]?.[nextPosFile - 1] === "")
+				virtualChess[nextPosRank + 1 * val]?.[nextPosFile + 1] === "")
 		) {
 			canMoveIn[`${nextPosRank + 1 * val}${nextPosFile + 1}`] =
 				movesType.ATTACKING;
@@ -65,11 +65,11 @@ const pawn = (
 	calculateMoves(num!);
 	canMoveIn[`${rank}${file}`] = movesType.SELF;
 
+	if (precautionMoves) {
+		console.log(canMoveIn, "-------------------------pawn precaution move");
+	}
+
 	return canMoveIn;
 };
-
-// const pawnPromotionOnDrop = (pieces: string, rank: number) => {
-// 	if()
-// };
 
 export default pawn;

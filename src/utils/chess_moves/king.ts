@@ -51,9 +51,9 @@ const king = (
 						[key: string]: string[];
 					} = acc;
 					current.forEach((piece, indexF) => {
-						if (!(piece.slice(-1) === enemy)) return;
+						if (!(piece?.slice(-1) === enemy)) return;
 
-						const pieceWithoutPlayer = piece.slice(0, piece.length - 2);
+						const pieceWithoutPlayer = piece?.slice(0, piece.length - 2);
 
 						const move = possibleMoves[
 							pieceWithoutPlayer as keyof typeof possibleMoves

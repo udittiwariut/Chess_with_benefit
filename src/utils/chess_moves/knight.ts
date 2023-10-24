@@ -14,8 +14,8 @@ const knight = (
 
 		if (sideMove > 7 || sideMove < 0) return;
 
-		if (virtualChess[move][sideMove].slice(-1) === turn) return;
-		if (virtualChess[move][sideMove].slice(-1) === enemy) {
+		if (virtualChess[move][sideMove]?.slice(-1) === turn) return;
+		if (virtualChess[move][sideMove]?.slice(-1) === enemy) {
 			canMoveIn[`${move}${sideMove}`] = movesType.ATTACKING;
 			return;
 		}
@@ -26,8 +26,8 @@ const knight = (
 		const sideMove = rank + sign;
 		if (sideMove > 7 || sideMove < 0) return;
 
-		if (virtualChess[sideMove][move].slice(-1) === turn) return;
-		if (virtualChess[sideMove][move].slice(-1) === enemy) {
+		if (virtualChess[sideMove][move]?.slice(-1) === turn) return;
+		if (virtualChess[sideMove][move]?.slice(-1) === enemy) {
 			canMoveIn[`${sideMove}${move}`] = movesType.ATTACKING;
 			return;
 		}

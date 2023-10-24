@@ -8,8 +8,10 @@ import Card from "../../atoms/card/Card";
 import { useAppDispatch } from "../../../store/typedHooks";
 import store from "../../../store/store";
 import apiCall, { Urls } from "../../../utils/apiCalls/apiCall";
+import Loader from "../../atoms/loader/Loader";
 
 const StartGameScreen = () => {
+	const [isLoading, setIsLoading] = useState(false);
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 	const [{ val, isOnChangeValid }, setText] = useState({
@@ -33,7 +35,9 @@ const StartGameScreen = () => {
 			roomId,
 			playerInfo: { w: val },
 		};
+		setIsLoading(true);
 		const res = await apiCall.post(Urls.CREATE_SESSION, body);
+		setIsLoading(false);
 		if (res.status) setText({ isOnChangeValid: false, val: url });
 		if (res.error) dispatch(tost({ isOpen: true, message: res.error }));
 	};
@@ -43,6 +47,9 @@ const StartGameScreen = () => {
 		const roomId = url[url.length - 1];
 		navigate(`/${roomId}?user=${searchParams}&player=w`);
 	};
+	if (isLoading) {
+		return <Loader />;
+	}
 
 	return (
 		<div className="flex justify-center items-center w-full h-[100dvh]">
@@ -52,9 +59,6 @@ const StartGameScreen = () => {
 					value={val}
 					onChange={(e) => isOnChangeValid && handleChange(e)}
 				/>
-				<p className="text-slate-600">
-					Send this link to your friend to start playing
-				</p>
 				<Button
 					className="border border-darkTile text-darkTile hover:bg-darkTile mt-3"
 					disabled={val.length >= 4 ? false : true}
