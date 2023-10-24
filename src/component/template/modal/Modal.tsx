@@ -30,7 +30,7 @@ const Modal = ({ children, closeModal }: props) => {
 		mounted &&
 		ref.current &&
 		createPortal(
-			<div className="block fixed w-full h-full overflow-auto bg-[rgba(0,0,0,0.4)] z-[1000] pt-[100px] left-0 top-0">
+			<div className="block fixed w-screen h-screen overflow-auto bg-[rgba(0,0,0,0.4)] z-[1000] pt-[100px] left-0 top-0">
 				<div
 					ref={modalRef}
 					className="absolute -translate-x-2/4 -translate-y-2/4 z-[1000] rounded-xl bg-white  left-2/4 top-2/4  overflow-y-auto"

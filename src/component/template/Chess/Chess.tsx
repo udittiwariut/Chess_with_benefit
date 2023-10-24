@@ -25,7 +25,7 @@ function Chess({
 		.map((_, i) => String.fromCharCode(i + 97));
 
 	return (
-		<>
+		<div id="chess_game">
 			{player.roomId && (
 				<div>
 					<div className="flex">
@@ -46,7 +46,7 @@ function Chess({
 					<GameOverScreen winner={winner} />
 				</Modal>
 			)}
-		</>
+		</div>
 	);
 }
 

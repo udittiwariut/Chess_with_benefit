@@ -3,7 +3,7 @@ import { ComponentProps } from "react";
 import cn from "../../../utils/functions/classHelperFn";
 
 const titleVariant = cva(
-	"block font-sans text-4xl font-semibold leading-tight tracking-normal text-blue-gray-900 antialiased",
+	"block font-sans text-4xl font-semibold leading-tight tracking-normal text-blue-gray-900 antialiased overflow-y-hidden",
 	{
 		variants: {
 			size: {

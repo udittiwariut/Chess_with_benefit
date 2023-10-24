@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+	font-size: 100%;
+}
+
+@media only screen and (max-width: 1280px) {
+	html {
+		font-size: 90%;
+	}
+}
+@media only screen and (max-width: 1024px) {
+	html {
+		font-size: 70%;
+	}
+}
+@media only screen and (max-width: 800px) {
+	html {
+		font-size: 60%;
+	}
+}
+
 * {
 	box-sizing: border-box;
 	overflow-x: hidden;

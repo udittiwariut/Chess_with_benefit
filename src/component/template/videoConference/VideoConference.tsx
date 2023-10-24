@@ -14,6 +14,9 @@ import NameTag from "../../molecule/nameTag/NameTag";
 import { isBothPlayerConnected } from "../../../store/user/userSlice";
 
 const VideoConference = () => {
+	const tileSize = parseInt(
+		getComputedStyle(document.body).getPropertyValue("--tileSize").charAt(0)
+	);
 	const dispatch = useAppDispatch();
 	const user = useAppSelector((state) => state.user.user);
 	const opponent = useAppSelector((state) => state.user.opponent);
@@ -194,7 +197,10 @@ const VideoConference = () => {
 	};
 
 	return (
-		<div className="video-container p-2 flex-1">
+		<div
+			className={`video-container p-2 flex-1 overflow-y-hidden`}
+			style={{ height: `${8 * tileSize}rem` }}
+		>
 			<NameTag player={opponent.piece}>{opponent.userName}</NameTag>
 			<Video stream={remoteStream!} muted={false} />
 			<NameTag player={user.piece}>{user.userName}</NameTag>
