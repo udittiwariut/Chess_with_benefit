@@ -52,7 +52,7 @@ const StartGameScreen = () => {
 	}
 
 	return (
-		<div className="flex justify-center items-center w-full h-[100dvh]">
+		<div className="flex justify-center items-center w-full h-[100dvh] ">
 			<Card className="p-4">
 				<Input
 					placeholder="Enter your Name"
